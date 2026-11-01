@@ -76,8 +76,12 @@ def cmd_print(args, cfg):
 
 
 def cmd_deliver(args, cfg):
-    """Deliver per config: lp prints locally, email sends over SMTP."""
-    if cfg["delivery"]["mode"] == "lp":
+    """Deliver per config: lp prints locally, email sends over SMTP, none keeps the PDF."""
+    mode = cfg["delivery"]["mode"]
+    if mode == "none":
+        print(f"delivery off: PDF saved at {args.pdf}")
+        return
+    if mode == "lp":
         return cmd_print(args, cfg)
     pdf = Path(args.pdf)
     subject = f"{(cfg.get('paper') or {}).get('title', 'The Daily Brief')}, {pdf.stem}"
