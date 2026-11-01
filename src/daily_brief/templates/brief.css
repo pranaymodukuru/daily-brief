@@ -76,3 +76,8 @@ blockquote cite { display: block; font-style: normal; font-size: 7pt; color: var
 .dense td { padding: 0.4mm 0; vertical-align: top; border-bottom: 0.4pt solid #ddd; }
 .dense td:first-child { white-space: nowrap; padding-right: 2mm; width: 1%; }
 .weather { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 7pt; letter-spacing: 0.2pt; border-top: 0.4pt solid var(--rule); margin: 1mm 0 0; padding-top: 0.6mm; }
+.top3 { border: 0.8pt solid var(--ink); padding: 1mm 2.2mm; margin-bottom: 2.5mm; font-size: 8.3pt; }
+.top3 b { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.8pt; }
+.top3 ol { margin: 0.4mm 0 0; padding-left: 4mm; }
+.top3 li { margin-bottom: 0.2mm; }
+.stat .num { font-size: 15pt; font-weight: 700; margin-right: 1mm; }

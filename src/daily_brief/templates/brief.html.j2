@@ -15,6 +15,7 @@
     {% if c.greeting %}<p class="greeting">{{ c.greeting }}</p>{% endif %}
     {% if c.weather %}<p class="weather">{{ c.weather }}</p>{% endif %}
   </header>
+  {% if c.top %}<div class="top3"><b>In 30 seconds</b><ol>{% for t in c.top %}<li>{{ t }}</li>{% endfor %}</ol></div>{% endif %}
   {% elif page.heading %}
   <header class="band"><h2>{{ page.heading }}</h2>{% if page.subheading %}<span>{{ page.subheading }}</span>{% endif %}</header>
   {% endif %}

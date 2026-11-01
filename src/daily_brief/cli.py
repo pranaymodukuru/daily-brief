@@ -27,7 +27,7 @@ from daily_brief import deliver, render, state, weather
 
 ROOT = Path.cwd()
 BLOCK_KINDS = {"news", "list", "text", "terms", "prompt", "quote", "lines", "checklist",
-               "agenda", "exercise", "sudoku"}
+               "agenda", "exercise", "sudoku", "stat"}
 
 
 def load_config() -> dict:

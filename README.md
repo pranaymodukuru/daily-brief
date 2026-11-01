@@ -62,13 +62,14 @@ Everything lives in `config.yaml` (see [config.example.yaml](config.example.yaml
 - **`sources.hackernews`:** optional. Today's Hacker News front page, fetched by `daily-brief hn` (no account needed).
 - **`sources.weather`:** optional. A one-line forecast under the masthead (`place`; Open-Meteo, no account needed).
 - **`sources.feeds`:** optional. RSS/Atom feeds, e.g. AI company blogs, read by `daily-brief feeds` (the most reliable source for launches).
+- **`sources.inbox`:** optional. A Gmail search for personal emails; the paper lists the ones needing a reply or with a deadline, as short actions without sensitive details.
 - **`paper.pages`:** how many printed pages; 2 makes one double-sided sheet.
 
 **The plan.** On the first run, Claude turns your wishes into a plan, saved as `state/plan.json`: which sections, in what order, with what purpose. Every edition follows that plan, so the paper feels familiar. Edit your wishes and the next run redesigns it. To force a redesign without changing them, delete `state/plan.json`.
 
 **Learning.** Anything you're learning becomes a subject in `state/progress.json`, such as "German" or "English vocabulary". New terms come back for review after 1, 3, 7 and 21 days and so on, and a short note per subject records where the lessons left off.
 
-**Building blocks.** Each section is printed as one of a few generic blocks: news (with optional lead stories and source stamps), list, text, terms, prompt (boxed exercise), quote, lines (space to write), checklist, agenda (today's meetings), exercise (numbered items with answer lines) and sudoku (generated in code, with yesterday's solution). They're defined in [`blocks.html.j2`](src/daily_brief/templates/blocks.html.j2), so new kinds of content need no code changes.
+**Building blocks.** Each section is printed as one of a few generic blocks: news (with optional lead stories and source stamps), stat (number of the day), list, text, terms, prompt (boxed exercise), quote, lines (space to write), checklist, agenda (today's meetings), exercise (numbered items with answer lines) and sudoku (generated in code, with yesterday's solution). They're defined in [`blocks.html.j2`](src/daily_brief/templates/blocks.html.j2), so new kinds of content need no code changes.
 
 ## Schedule it
 

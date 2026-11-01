@@ -30,6 +30,11 @@ sources:
   # Set latitude/longitude too if the place name is ambiguous.
   # weather:
   #   place: "Berlin"
+  # Personal emails that need a reply or have a deadline (Gmail connector).
+  # Only actions are printed, never sensitive details.
+  # inbox:
+  #   query: "in:inbox -category:promotions -category:social -category:updates newer_than:2d"
+  #   max: 5
   # RSS/Atom feeds to check for news, e.g. company blogs for launches.
   # feeds:
   #   - {name: "OpenAI", url: "https://openai.com/news/rss.xml"}

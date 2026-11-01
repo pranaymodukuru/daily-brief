@@ -11,7 +11,8 @@ Run `uv run daily-brief context`. It returns JSON with:
 - `config.reader` (name, language) and `config.wishes`: who this is for and what they want
 - `config.sources`: optional inputs, e.g. `newsletters.query` (a Gmail search)
   `calendar` (today's meetings), `hackernews` (the HN front page),
-  `weather` (today's forecast) and `feeds` (RSS feeds, e.g. AI company blogs)
+  `weather` (today's forecast), `feeds` (RSS feeds, e.g. AI company blogs)
+  and `inbox` (personal emails that may need action)
 - `config.paper.pages`: how many printed pages (default 2 = one double-sided sheet)
 - `plan`: the saved paper design, and `replan`: true if there's no plan yet or the wishes changed
 - `subjects`: for each learning subject, `due_for_review` (use all of them),
@@ -68,6 +69,17 @@ plan exactly.
   to 24:00 local time, ordered by start time. Show time and title only, plus
   a short note if it helps (e.g. "prep: read X"). Skip declined events. No
   meetings: an empty `items` list, which prints "No meetings today."
+  **Meeting prep:** for each meeting, if the event description, a recent
+  email thread (search its title or attendees, last 7 days) or an attached
+  document says what it's about, add a one-line `note` such as
+  "prep: skim the Q3 deck Anna sent". No note if there's nothing concrete.
+- **Inbox to-dos** (if `sources.inbox` is set): search
+  `{query}` and read subjects, senders and snippets (open a thread only if
+  the snippet isn't enough). Keep only personal emails that need a reply,
+  a decision or have a deadline, up to `max` (default 5). Skip newsletters,
+  notifications and receipts. Write each as a short action ("Reply to Sam
+  about Friday's demo") with the usual email stamp. Never print codes,
+  passwords, account numbers or other sensitive details from an email.
 - **Hacker News** (if `sources.hackernews` is set): run
   `uv run daily-brief hn --top {top or 30}`. It returns the front page with
   points and comments. Pick what the wishes ask for, e.g. trending topics as
@@ -88,6 +100,10 @@ plan exactly.
   fresh, print fewer items.
 - **Everything else** you write yourself. Quotes must be real and correctly attributed.
 
+**Top 3.** If the wishes or plan ask for it, `top` holds the three most
+useful things from the whole front page, one short line each. It prints in
+a box under the masthead: the 30-second version of the paper.
+
 **Source stamps.** Anything taken from an email gets a `stamp` so the reader
 can find it again: `"30 Oct 16:03 · <subject> · <sender address>"` (local
 time, the email's subject as sent). Hacker News items get
@@ -102,6 +118,7 @@ Write `out/{today}.json`:
   "date": "YYYY-MM-DD", "edition": 1, "title": "<plan title>",
   "greeting": "one warm, specific line for today",
   "weather": "<line from daily-brief weather, if configured>",
+  "top": ["optional: the 3 things worth knowing today, one line each"],
   "pages": [ { "heading": "...", "subheading": "...", "left": [<blocks>], "right": [<blocks>] } ],
   "learning": [
     {"subject": "German", "introduced": [{"term": "der Zug", "meaning": "the train"}],
@@ -118,7 +135,7 @@ content. Block kinds:
 | kind | fields |
 |---|---|
 | `news` | `title`, `items: [{topic, title, summary (2–3 sentences), source, stamp?}]` |
-| `list` | `title`, `items: [str or {text, stamp}]`, optional `intro`, `ordered: bool` |
+| `list` | `title`, `items: [str or {text, stamp}]`, optional `intro`, `ordered: bool`, `empty` (printed when `items` is empty) |
 | `text` | `title`, `body` (a short paragraph), optional `note` (e.g. "Try it: …") |
 | `terms` | `title`, `items: [{term, level?, pos?, pron?, meaning, example?, tip?}]`: words, phrases, concepts. `dense: true` prints one compact row per term, good for 6–10 words |
 | `prompt` | `title`, `body` (the task), optional `steps: [str]`: shown in a box, e.g. a speaking or writing exercise |
@@ -127,6 +144,7 @@ content. Block kinds:
 | `checklist` | `title`, `items: [str]` (tick boxes) |
 | `agenda` | `title`, `items: [{time ("09:30–10:00" or "All day"), title, note?}]`, optional `empty` text |
 | `exercise` | `title`, `items: [str]`, optional `intro` (e.g. yesterday's answers), `body`, `lines` per item (default 1, 0 for none) |
+| `stat` | `title`, `value` (e.g. "80%"), `body` (one sentence of context), `stamp?`: a number of the day |
 | `sudoku` | `title`, `level` (easy, medium, hard): the grid and yesterday's solution are generated for you |
 
 A `news` item may add `points: [str]` (3–4 bullets) to make it a lead story
