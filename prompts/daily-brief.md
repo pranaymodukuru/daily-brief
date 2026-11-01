@@ -19,6 +19,9 @@ Run `uv run daily-brief context`. It returns JSON with:
   `known_terms` (never re-introduce these) and `recent_notes` (where the lessons left off)
 - `recently_covered`: topics and lessons from the last three weeks; don't repeat them
 - `yesterday_for_tomorrow`: things promised yesterday (e.g. answers); print them today
+- `fact_topic`: a randomly drawn area for a "fact of the day" section, if the
+  plan has one. Pick a surprising, true and checkable fact from it that isn't in
+  `recently_covered`, explain it in 2–3 sentences, and add it to `covered`.
 
 ## 2. Plan the paper (only if `replan` is true)
 
@@ -137,7 +140,7 @@ content. Block kinds:
 | `news` | `title`, `items: [{topic, title, summary (2–3 sentences), source, stamp?}]` |
 | `list` | `title`, `items: [str or {text, stamp}]`, optional `intro`, `ordered: bool`, `empty` (printed when `items` is empty) |
 | `text` | `title`, `body` (a short paragraph), optional `note` (e.g. "Try it: …") |
-| `terms` | `title`, `items: [{term, level?, pos?, pron?, meaning, example?, tip?}]`: words, phrases, concepts. `dense: true` prints one compact row per term, good for 6–10 words |
+| `terms` | `title`, `items: [{term, level?, pos?, pron?, meaning, example?, examples?: [str], tip?}]`: words, phrases, concepts. `dense: true` prints one compact row per term, good for 6–10 words |
 | `prompt` | `title`, `body` (the task), optional `steps: [str]`: shown in a box, e.g. a speaking or writing exercise |
 | `quote` | `text`, `author` |
 | `lines` | `title`, `prompt`, `count` (blank lines to write on) |
@@ -164,7 +167,9 @@ spread each day's words and exercises across the range and tag every term
 with its `level`, so the reader brushes up all of it regularly. Language
 exercises should be varied and quick: fill-in gaps, articles and endings,
 word order, choosing the right word, short translations, rewriting a
-sentence. Answers always come the next day (`for_tomorrow`).
+sentence. Answers always come the next day (`for_tomorrow`). Teach phrases
+(idioms, set expressions) as well as single words when the wishes ask for them:
+a phrase is a `terms` item with its meaning and two `examples`.
 
 **Fit:** each page of the full layout is one A4 side, set small and dense.
 Keep summaries tight. Page one should be full: if there is space left, add short stories
@@ -175,7 +180,9 @@ Keep summaries tight. Page one should be full: if there is space left, add short
 Run `uv run daily-brief build out/{today}.json --no-record`. It prints the
 layout, page count and size. The `full` layout must have exactly as many pages
 as the plan; `compact` (email delivery) must be 1 page. If it overflows,
-shorten the longest blocks and rebuild. When it fits, run
+shorten the longest blocks and rebuild. A column that is too long pushes the
+whole page's columns onto a new page, so if one column is much longer than
+the other, move a block across rather than cutting content. When it fits, run
 `uv run daily-brief build out/{today}.json` to save progress. Make that the
 last build: the footer records the model, tokens and cost of this run up to
 that moment, read from the Claude Code transcript.

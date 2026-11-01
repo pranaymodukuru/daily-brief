@@ -8,11 +8,19 @@ the reader's wishes and reused until the wishes change.
 
 import hashlib
 import json
+import random
 from datetime import date, timedelta
 from pathlib import Path
 
 # Days until the next review after each successful repetition.
 INTERVALS = [1, 3, 7, 21, 60, 180]
+
+# Areas a "fact of the day" can come from; one is drawn at random each day.
+FACT_TOPICS = [
+    "history", "science", "geography", "space", "the human body", "animals and nature",
+    "economics", "art and music", "words and languages", "inventions", "mathematics",
+    "cultures and traditions", "food", "architecture", "psychology", "oceans",
+]
 
 
 def empty() -> dict:
@@ -67,6 +75,8 @@ def context(st: dict, plan: dict | None, cfg: dict, today: date) -> dict:
         "subjects": subjects,
         "recently_covered": [c for e in history[-21:] for c in e.get("covered", [])],
         "yesterday_for_tomorrow": history[-1].get("for_tomorrow", []) if history else [],
+        "fact_topic": random.Random(today.isoformat()).choice(
+            (cfg.get("paper") or {}).get("fact_topics") or FACT_TOPICS),
     }
 
 

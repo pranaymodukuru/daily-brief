@@ -50,6 +50,7 @@ sources:
 
 paper:
   pages: 2                   # 2 = one double-sided sheet
+  # fact_topics: [history, science, space]   # areas for a "fact of the day", if your wishes ask for one
 
 delivery:
   # lp    – print on a local printer (computer on, same network)

@@ -65,7 +65,7 @@ blockquote cite { display: block; font-style: normal; font-size: 7pt; color: var
 
 .sudoku-wrap { display: flex; gap: 3mm; align-items: flex-end; }
 .sudoku { border-collapse: collapse; border: 1.2pt solid var(--ink); font-family: "Helvetica Neue", Arial, sans-serif; }
-.sudoku td { width: 5.4mm; height: 5.4mm; border: 0.4pt solid var(--rule); text-align: center; vertical-align: middle; font-size: 9pt; padding: 0; }
+.sudoku td { width: 4.9mm; height: 4.9mm; border: 0.4pt solid var(--rule); text-align: center; vertical-align: middle; font-size: 9pt; padding: 0; }
 .sudoku td.rb { border-right: 1.2pt solid var(--ink); }
 .sudoku tr:nth-child(3n) td { border-bottom: 1.2pt solid var(--ink); }
 .sudoku.mini td { width: 2.3mm; height: 2.3mm; font-size: 4.5pt; color: var(--muted); }

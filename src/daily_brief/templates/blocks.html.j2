@@ -42,6 +42,7 @@
     <p><b class="w">{{ t.term }}</b>{% if t.level %} <span class="lvl">{{ t.level }}</span>{% endif %}{% if t.pos %} <span class="pos">{{ t.pos }}</span>{% endif %}{% if t.pron and not compact %} <span class="ipa">{{ t.pron }}</span>{% endif %}{% if compact %}: {{ t.meaning }}{% endif %}</p>
     {%- if not compact %}<p>{{ t.meaning }}</p>{% endif %}
     {%- if t.example %}<p class="ex">“{{ t.example }}”</p>{% endif %}
+    {%- for e in t.examples or [] %}<p class="ex">“{{ e }}”</p>{% endfor %}
     {%- if t.tip and not compact %}<p class="use">{{ t.tip }}</p>{% endif %}
   </div>
   {%- endfor %}
