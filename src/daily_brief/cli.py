@@ -8,6 +8,7 @@ writing; these commands handle state, rendering and printing.
   daily-brief print PDF            send a PDF to the configured printer
   daily-brief deliver PDF          print or email it, per delivery.mode
   daily-brief hn [--top N]         today's Hacker News front page (JSON)
+  daily-brief weather              today's forecast for sources.weather (JSON)
 """
 
 import argparse
@@ -20,7 +21,7 @@ from pathlib import Path
 
 import yaml
 
-from daily_brief import deliver, render, state
+from daily_brief import deliver, render, state, weather
 
 ROOT = Path.cwd()
 BLOCK_KINDS = {"news", "list", "text", "terms", "prompt", "quote", "lines", "checklist",
@@ -84,6 +85,13 @@ def cmd_hn(args, cfg):
     print(json.dumps(stories, indent=2, ensure_ascii=False))
 
 
+def cmd_weather(args, cfg):
+    w = (cfg.get("sources") or {}).get("weather")
+    if not w:
+        sys.exit("sources.weather is not set in config.yaml")
+    print(json.dumps(weather.forecast(w), indent=2, ensure_ascii=False))
+
+
 def cmd_print(args, cfg):
     d = cfg["delivery"]
     cmd = ["lp"]
@@ -123,6 +131,8 @@ def main():
     dl.add_argument("--dry-run", action="store_true", help="build the email but don't send it")
     hn = sub.add_parser("hn", help="today's Hacker News front page as JSON")
     hn.add_argument("--top", type=int, default=30)
+    sub.add_parser("weather", help="today's forecast for sources.weather as JSON")
     args = p.parse_args()
-    cmds = {"context": cmd_context, "build": cmd_build, "print": cmd_print, "deliver": cmd_deliver, "hn": cmd_hn}
+    cmds = {"context": cmd_context, "build": cmd_build, "print": cmd_print, "deliver": cmd_deliver, "hn": cmd_hn,
+            "weather": cmd_weather}
     cmds[args.cmd](args, load_config())

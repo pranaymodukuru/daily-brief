@@ -10,7 +10,8 @@ build on the last. Work in the repository root.
 Run `uv run daily-brief context`. It returns JSON with:
 - `config.reader` (name, language) and `config.wishes`: who this is for and what they want
 - `config.sources`: optional inputs, e.g. `newsletters.query` (a Gmail search)
-  `calendar` (today's meetings) and `hackernews` (the HN front page)
+  `calendar` (today's meetings), `hackernews` (the HN front page) and
+  `weather` (today's forecast)
 - `config.paper.pages`: how many printed pages (default 2 = one double-sided sheet)
 - `plan`: the saved paper design, and `replan`: true if there's no plan yet or the wishes changed
 - `subjects`: for each learning subject, `due_for_review` (use all of them),
@@ -73,6 +74,9 @@ plan exactly.
   short bullets and AI stories as headlines. Write a story's summary only
   from what you know for sure: the title, or the linked page if you open it.
   Never guess what an article says.
+- **Weather** (if `sources.weather` is set): run `uv run daily-brief weather`
+  and put its `line` in the edition's top-level `weather` field, unchanged.
+  It prints as a strip under the masthead. If the command fails, leave it out.
 - **News** (web search): only from the last 24–48 hours, from reputable
   sources, named briefly. **Never invent news.** If there's little that's
   fresh, print fewer items.
@@ -91,6 +95,7 @@ Write `out/{today}.json`:
 {
   "date": "YYYY-MM-DD", "edition": 1, "title": "<plan title>",
   "greeting": "one warm, specific line for today",
+  "weather": "<line from daily-brief weather, if configured>",
   "pages": [ { "heading": "...", "subheading": "...", "left": [<blocks>], "right": [<blocks>] } ],
   "learning": [
     {"subject": "German", "introduced": [{"term": "der Zug", "meaning": "the train"}],

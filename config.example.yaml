@@ -26,6 +26,10 @@ sources:
   # Today's Hacker News front page (no account needed).
   # hackernews:
   #   top: 30
+  # Today's forecast in a strip under the masthead (Open-Meteo, no account needed).
+  # Set latitude/longitude too if the place name is ambiguous.
+  # weather:
+  #   place: "Berlin"
 
 paper:
   pages: 2                   # 2 = one double-sided sheet

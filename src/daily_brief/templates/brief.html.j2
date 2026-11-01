@@ -13,6 +13,7 @@
     <div class="meta"><span>No. {{ c.edition }}</span><span>{{ long_date }}</span><span>{{ cfg.reader.name }}'s edition</span></div>
     <h1>{{ title }}</h1>
     {% if c.greeting %}<p class="greeting">{{ c.greeting }}</p>{% endif %}
+    {% if c.weather %}<p class="weather">{{ c.weather }}</p>{% endif %}
   </header>
   {% elif page.heading %}
   <header class="band"><h2>{{ page.heading }}</h2>{% if page.subheading %}<span>{{ page.subheading }}</span>{% endif %}</header>

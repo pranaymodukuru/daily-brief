@@ -75,3 +75,4 @@ blockquote cite { display: block; font-style: normal; font-size: 7pt; color: var
 .dense { border-collapse: collapse; width: 100%; margin-bottom: 1mm; }
 .dense td { padding: 0.4mm 0; vertical-align: top; border-bottom: 0.4pt solid #ddd; }
 .dense td:first-child { white-space: nowrap; padding-right: 2mm; width: 1%; }
+.weather { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 7pt; letter-spacing: 0.2pt; border-top: 0.4pt solid var(--rule); margin: 1mm 0 0; padding-top: 0.6mm; }
