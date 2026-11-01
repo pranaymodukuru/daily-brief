@@ -9,14 +9,16 @@ writing; these commands handle state, rendering and printing.
   daily-brief deliver PDF          print or email it, per delivery.mode
   daily-brief hn [--top N]         today's Hacker News front page (JSON)
   daily-brief weather              today's forecast for sources.weather (JSON)
+  daily-brief feeds [--hours N]    recent posts from sources.feeds (JSON)
 """
 
 import argparse
+import calendar
 import json
 import subprocess
 import sys
 import urllib.request
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -92,6 +94,38 @@ def cmd_weather(args, cfg):
     print(json.dumps(weather.forecast(w), indent=2, ensure_ascii=False))
 
 
+def cmd_feeds(args, cfg):
+    """Posts from the configured RSS/Atom feeds in the last N hours, newest first."""
+    import feedparser
+
+    feeds = (cfg.get("sources") or {}).get("feeds") or []
+    if not feeds:
+        sys.exit("sources.feeds is not set in config.yaml")
+    cutoff = datetime.now(timezone.utc).timestamp() - args.hours * 3600
+    posts = []
+    for f in feeds:
+        parsed = feedparser.parse(f["url"], agent="Mozilla/5.0 daily-brief")
+        if parsed.bozo and not parsed.entries:
+            print(f"feeds: could not read {f['name']}: {parsed.bozo_exception}", file=sys.stderr)
+            continue
+        for e in parsed.entries:
+            t = e.get("published_parsed") or e.get("updated_parsed")
+            if not t or calendar.timegm(t) < cutoff:
+                continue
+            posts.append({
+                "source": f["name"],
+                "title": e.get("title", "").strip(),
+                "link": e.get("link", ""),
+                "published": datetime.fromtimestamp(calendar.timegm(t), timezone.utc).astimezone().strftime("%d %b %H:%M"),
+                "ts": calendar.timegm(t),
+                "summary": " ".join(e.get("summary", "").split())[:400],
+            })
+    posts.sort(key=lambda x: -x["ts"])
+    for x in posts:
+        del x["ts"]
+    print(json.dumps(posts, indent=2, ensure_ascii=False))
+
+
 def cmd_print(args, cfg):
     d = cfg["delivery"]
     cmd = ["lp"]
@@ -132,7 +166,9 @@ def main():
     hn = sub.add_parser("hn", help="today's Hacker News front page as JSON")
     hn.add_argument("--top", type=int, default=30)
     sub.add_parser("weather", help="today's forecast for sources.weather as JSON")
+    fd = sub.add_parser("feeds", help="recent posts from sources.feeds as JSON")
+    fd.add_argument("--hours", type=int, default=48)
     args = p.parse_args()
     cmds = {"context": cmd_context, "build": cmd_build, "print": cmd_print, "deliver": cmd_deliver, "hn": cmd_hn,
-            "weather": cmd_weather}
+            "weather": cmd_weather, "feeds": cmd_feeds}
     cmds[args.cmd](args, load_config())

@@ -61,6 +61,7 @@ Everything lives in `config.yaml` (see [config.example.yaml](config.example.yaml
 - **`sources.calendar`:** optional. Puts today's meetings (time and title) on the front page (needs the Google Calendar connector).
 - **`sources.hackernews`:** optional. Today's Hacker News front page, fetched by `daily-brief hn` (no account needed).
 - **`sources.weather`:** optional. A one-line forecast under the masthead (`place`; Open-Meteo, no account needed).
+- **`sources.feeds`:** optional. RSS/Atom feeds, e.g. AI company blogs, read by `daily-brief feeds` (the most reliable source for launches).
 - **`paper.pages`:** how many printed pages; 2 makes one double-sided sheet.
 
 **The plan.** On the first run, Claude turns your wishes into a plan, saved as `state/plan.json`: which sections, in what order, with what purpose. Every edition follows that plan, so the paper feels familiar. Edit your wishes and the next run redesigns it. To force a redesign without changing them, delete `state/plan.json`.

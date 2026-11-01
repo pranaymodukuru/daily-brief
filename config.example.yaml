@@ -30,6 +30,11 @@ sources:
   # Set latitude/longitude too if the place name is ambiguous.
   # weather:
   #   place: "Berlin"
+  # RSS/Atom feeds to check for news, e.g. company blogs for launches.
+  # feeds:
+  #   - {name: "OpenAI", url: "https://openai.com/news/rss.xml"}
+  #   - {name: "Google DeepMind", url: "https://deepmind.google/blog/rss.xml"}
+  #   - {name: "Hugging Face", url: "https://huggingface.co/blog/feed.xml"}
 
 paper:
   pages: 2                   # 2 = one double-sided sheet

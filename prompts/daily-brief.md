@@ -10,8 +10,8 @@ build on the last. Work in the repository root.
 Run `uv run daily-brief context`. It returns JSON with:
 - `config.reader` (name, language) and `config.wishes`: who this is for and what they want
 - `config.sources`: optional inputs, e.g. `newsletters.query` (a Gmail search)
-  `calendar` (today's meetings), `hackernews` (the HN front page) and
-  `weather` (today's forecast)
+  `calendar` (today's meetings), `hackernews` (the HN front page),
+  `weather` (today's forecast) and `feeds` (RSS feeds, e.g. AI company blogs)
 - `config.paper.pages`: how many printed pages (default 2 = one double-sided sheet)
 - `plan`: the saved paper design, and `replan`: true if there's no plan yet or the wishes changed
 - `subjects`: for each learning subject, `due_for_review` (use all of them),
@@ -77,6 +77,12 @@ plan exactly.
 - **Weather** (if `sources.weather` is set): run `uv run daily-brief weather`
   and put its `line` in the edition's top-level `weather` field, unchanged.
   It prints as a strip under the masthead. If the command fails, leave it out.
+- **Feeds** (if `sources.feeds` is set): run `uv run daily-brief feeds --hours 48`.
+  It returns recent posts from the configured blogs: the most reliable
+  source for launches and updates. Stamp each item `"<source> blog · <published>"`.
+  For anything not in the feeds (e.g. a lab without one), web search only
+  for confirmed announcements from the company or a reputable outlet.
+  Never report rumoured, expected or leaked releases as launches.
 - **News** (web search): only from the last 24–48 hours, from reputable
   sources, named briefly. **Never invent news.** If there's little that's
   fresh, print fewer items.
