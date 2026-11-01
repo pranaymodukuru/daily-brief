@@ -1,0 +1,25 @@
+{
+  "date": "2026-01-01",
+  "edition": 1,
+  "greeting": "Good morning. This is a sample edition; the scheduled job writes a fresh one every day from your config.",
+  "headlines": [
+    {"topic": "World", "title": "Sample headline: the day's most important story appears here", "summary": "Each headline is researched from news published in the last day or two and summarised in two or three sentences, in plain language, with its source named.", "source": "Example News"},
+    {"topic": "Science", "title": "Sample headline: topics come from your config", "summary": "Set sections.headlines.topics to whatever you follow, from local politics to football to astronomy.", "source": "Example Journal"},
+    {"topic": "Technology", "title": "Sample headline: fewer stories on slow news days", "summary": "The writer is told never to invent news. When there is little that's fresh, it prints fewer items rather than filler.", "source": "Example Wire"}
+  ],
+  "trends": [
+    {"area": "Technology", "points": ["Sample trend: what is changing, not just what happened.", "Two short points per topic by default."]},
+    {"area": "Climate", "points": ["Sample trend: configure topics under sections.trends.", "Set points: 1 for a shorter column."]}
+  ],
+  "quote": {"text": "The beginning is the most important part of the work.", "author": "Plato"},
+  "words": [
+    {"word": "lucid", "pos": "adjective", "ipa": "/ˈluː.sɪd/", "meaning": "Expressed clearly; easy to understand.", "example": "She gave a lucid explanation of a complicated idea.", "use_it": "Describe something you read today as lucid, or not."},
+    {"word": "candid", "pos": "adjective", "ipa": "/ˈkæn.dɪd/", "meaning": "Truthful and straightforward; frank.", "example": "Thanks for the candid feedback; it helped.", "use_it": "Ask someone for their candid opinion today."},
+    {"word": "succinct", "pos": "adjective", "ipa": "/səkˈsɪŋkt/", "meaning": "Briefly and clearly expressed.", "example": "Keep the update succinct: three bullet points.", "use_it": "Write one message today that is genuinely succinct."}
+  ],
+  "review_words": [],
+  "phrase": {"text": "to get the ball rolling", "meaning": "To start an activity or process.", "example": "I'll get the ball rolling with a quick summary."},
+  "on_this_day": {"items": ["Sample: notable events on today's date appear here, one line each.", "This is a custom section, defined in config.yaml with plain-language instructions."]},
+  "lesson": {"title": "The Feynman technique", "body": "To check whether you really understand something, try to explain it in simple words to someone with no background in it. Where you reach for jargon or get stuck, you've found a gap. Go back to the source, fill the gap, and simplify your explanation again. Repeat until a twelve-year-old could follow it. The technique works for anything, from how vaccines work to why interest rates matter, because explaining forces you to organise what you know.", "try_it": "Pick one idea from today's front page and explain it out loud in under a minute."},
+  "reflection": "What is one thing you learned this week that changed how you see something?"
+}

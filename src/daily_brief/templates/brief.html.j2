@@ -1,0 +1,27 @@
+{% import "sections.html.j2" as s %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ cfg.paper.title }} · {{ c.date }}</title>
+<style>{{ css }}</style>
+</head>
+<body>
+{% for page in cfg.paper.pages %}
+<section class="page{% if loop.first %} front{% endif %}">
+  {% if loop.first %}
+  <header class="masthead">
+    <div class="meta"><span>No. {{ c.edition }}</span><span>{{ long_date }}</span><span>{{ cfg.reader.name }}'s edition</span></div>
+    <h1>{{ cfg.paper.title }}</h1>
+    {% if c.greeting %}<p class="greeting">{{ c.greeting }}</p>{% endif %}
+  </header>
+  {% elif page.heading %}
+  <header class="band"><h2>{{ page.heading }}</h2>{% if page.subheading %}<span>{{ page.subheading }}</span>{% endif %}</header>
+  {% endif %}
+  <div class="cols">
+    <div class="col-a">{% for id in page.left or [] %}{{ s.section(id, c, cfg) }}{% endfor %}</div>
+    <div class="col-b">{% for id in page.right or [] %}{{ s.section(id, c, cfg) }}{% endfor %}</div>
+  </div>
+</section>
+{% endfor %}
+</body>
+</html>

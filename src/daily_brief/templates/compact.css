@@ -1,0 +1,35 @@
+/* One-page edition for email-to-print. One font family, two weights, no
+   italics or special glyphs: every extra font face adds tens of KB, and the
+   PDF travels base64-encoded through the email tool. */
+@page { size: A4; margin: 11mm 12mm; }
+
+html { font-family: Georgia, serif; font-size: 8.9pt; line-height: 1.3; color: #111; }
+body { margin: 0; }
+p { margin: 0 0 1.4mm; }
+b { font-weight: 700; }
+
+.masthead { text-align: center; border-bottom: 2pt double #111; margin-bottom: 3mm; }
+.masthead h1 { font-size: 24pt; margin: 0; }
+.meta { display: flex; justify-content: space-between; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.6pt; border-top: 0.5pt solid #111; padding: 0.6mm 0; }
+
+.cols { display: flex; gap: 6mm; }
+.cols > div { flex: 1; }
+.cols > div + div { border-left: 0.5pt solid #999; padding-left: 5mm; }
+
+h2 { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.9pt; border-bottom: 0.5pt solid #111; padding-bottom: 0.5mm; margin: 3mm 0 1.5mm; }
+.cols > div > h2:first-child { margin-top: 0; }
+.kicker { font-size: 6.8pt; text-transform: uppercase; letter-spacing: 0.7pt; color: #8a1c1c; margin: 0; }
+.story { margin-bottom: 2.2mm; }
+.faint { color: #555; }
+.box { border: 0.8pt solid #111; padding: 2mm 2.5mm 0.6mm; margin: 2.5mm 0; }
+
+/* Shared section markup, flattened for one page (no italics: one font face less). */
+ul.tight, ol.tight { margin: 0 0 1.4mm; padding-left: 4mm; }
+ul.tight li, ol.tight li { margin-bottom: 0.7mm; }
+.word { margin-bottom: 1.2mm; }
+.word p { margin: 0; }
+.pos, .src, .use, .sub { color: #555; }
+.ex { color: #555; }
+blockquote { margin: 2mm 0; }
+blockquote cite { display: block; color: #555; }
+.box h2 { margin-top: 0; }
