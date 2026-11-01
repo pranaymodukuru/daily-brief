@@ -34,7 +34,7 @@
   {%- if b.note %}<p class="use">{{ b.note }}</p>{% endif %}
 
 {%- elif k == "terms" and b.dense -%}
-  <table class="dense">{% for t in b["items"] %}<tr><td><b>{{ t.term }}</b>{% if t.level %} <span class="lvl">{{ t.level }}</span>{% endif %}</td><td>{{ t.meaning }}{% if t.example and not compact %}<br><i>{{ t.example }}</i>{% endif %}</td></tr>{% endfor %}</table>
+  <table class="dense">{% for t in b["items"] %}<tr><td><b>{{ t.term }}</b>{% if t.level %} <span class="lvl">{{ t.level }}</span>{% endif %}</td><td>{{ t.meaning }}</td>{% if not compact %}<td class="ex">{{ t.example or "" }}</td>{% endif %}</tr>{% endfor %}</table>
 
 {%- elif k == "terms" -%}
   {%- for t in b["items"] %}
@@ -86,9 +86,13 @@
   {%- if b.stamp %}<p class="stamp">{{ b.stamp }}</p>{% endif %}
 
 {%- elif k == "checklist" and not compact -%}
+  {%- if b.inline %}
+  <p class="strip">{% if b.title %}<b>{{ b.title }}</b>{% endif %}{% for i in b["items"] %}<span><i class="tick"></i>{{ i }}</span>{% endfor %}</p>
+  {%- else %}
   <div class="box checklist">
     {%- if b.title %}<h2>{{ b.title }}</h2>{% endif %}
     {%- for i in b["items"] %}<p><i class="tick"></i>{{ i }}</p>{% endfor %}
   </div>
+  {%- endif %}
 {%- endif -%}
 {% endmacro %}

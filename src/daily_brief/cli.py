@@ -49,10 +49,11 @@ def cmd_context(args, cfg):
 def validate(content: dict) -> list[str]:
     errors = [f"missing '{k}'" for k in ("date", "pages") if k not in content]
     for n, page in enumerate(content.get("pages", []), 1):
-        for col in ("left", "right"):
-            for b in page.get(col) or []:
-                if b.get("kind") not in BLOCK_KINDS:
-                    errors.append(f"page {n} {col}: unknown block kind {b.get('kind')!r}")
+        cols = [page.get("left") or [], page.get("right") or []]
+        cols += [col for row in page.get("rows") or [] for col in row.get("columns") or []]
+        for b in (b for col in cols for b in col):
+            if b.get("kind") not in BLOCK_KINDS:
+                errors.append(f"page {n}: unknown block kind {b.get('kind')!r}")
     return errors
 
 

@@ -58,6 +58,12 @@ Write `state/plan.json`:
 }
 ```
 
+A page can instead be divided into rows, each with its own columns, e.g. one
+row per subject: `{"heading": "Practice", "rows": [{"heading": "English",
+"widths": [1.3, 1], "columns": [[<blocks>], [<blocks>]]}, ...]}`. `widths`
+(optional) are relative column widths. Use rows when the wishes ask for that
+structure or when the page has several distinct subjects.
+
 `purpose` is your standing brief for that section: what goes in it, how much,
 and for which subject (if it teaches). If `replan` is false, follow the saved
 plan exactly.
@@ -133,7 +139,7 @@ Write `out/{today}.json`:
 ```
 
 Pages and blocks follow the plan: same order, kinds and titles, with today's
-content. Block kinds:
+content. A page uses either `left`/`right` or `rows`, as the plan does. Block kinds:
 
 | kind | fields |
 |---|---|
@@ -144,7 +150,7 @@ content. Block kinds:
 | `prompt` | `title`, `body` (the task), optional `steps: [str]`: shown in a box, e.g. a speaking or writing exercise |
 | `quote` | `text`, `author` |
 | `lines` | `title`, `prompt`, `count` (blank lines to write on) |
-| `checklist` | `title`, `items: [str]` (tick boxes) |
+| `checklist` | `title`, `items: [str]` (tick boxes), `inline: true` for a one-line strip |
 | `agenda` | `title`, `items: [{time ("09:30–10:00" or "All day"), title, note?}]`, optional `empty` text |
 | `exercise` | `title`, `items: [str]`, optional `intro` (e.g. yesterday's answers), `body`, `lines` per item (default 1, 0 for none) |
 | `stat` | `title`, `value` (e.g. "80%"), `body` (one sentence of context), `stamp?`: a number of the day |

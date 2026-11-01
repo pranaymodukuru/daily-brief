@@ -20,10 +20,19 @@
   {% elif page.heading %}
   <header class="band"><h2>{{ page.heading }}</h2>{% if page.subheading %}<span>{{ page.subheading }}</span>{% endif %}</header>
   {% endif %}
+  {% if page.rows %}
+  {% for row in page.rows %}
+  <div class="row">
+    {% if row.heading %}<h2 class="row-head">{{ row.heading }}</h2>{% endif %}
+    <div class="cols">{% for col in row.columns %}<div class="rcol"{% if row.widths %} style="flex: {{ row.widths[loop.index0] }}"{% endif %}>{% for b in col %}{{ k.block(b) }}{% endfor %}</div>{% endfor %}</div>
+  </div>
+  {% endfor %}
+  {% else %}
   <div class="cols">
     <div class="col-a">{% for b in page.left or [] %}{{ k.block(b) }}{% endfor %}</div>
     <div class="col-b">{% for b in page.right or [] %}{{ k.block(b) }}{% endfor %}</div>
   </div>
+  {% endif %}
 </section>
 {% endfor %}
 </body>
