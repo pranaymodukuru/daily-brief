@@ -23,7 +23,7 @@ from pathlib import Path
 
 import yaml
 
-from daily_brief import deliver, render, state, weather
+from daily_brief import deliver, render, state, usage, weather
 
 ROOT = Path.cwd()
 BLOCK_KINDS = {"news", "list", "text", "terms", "prompt", "quote", "lines", "checklist",
@@ -62,7 +62,8 @@ def cmd_build(args, cfg):
         sys.exit("invalid content: " + "; ".join(errors))
     layout = args.layout or ("compact" if cfg["delivery"]["mode"] == "email" else "full")
     pdf = ROOT / "out" / f"{content['date']}.pdf"
-    pages = render.to_pdf(content, cfg, pdf, layout)
+    run = None if args.no_usage else usage.run_usage((cfg.get("cost") or {}).get("prices"))
+    pages = render.to_pdf(content, cfg, pdf, layout, run)
     if not args.no_record:
         path = ROOT / "state" / "progress.json"
         st = state.record(state.load(path), content, date.fromisoformat(content["date"]))
@@ -157,6 +158,7 @@ def main():
     b = sub.add_parser("build")
     b.add_argument("content")
     b.add_argument("--no-record", action="store_true", help="render only, don't update progress")
+    b.add_argument("--no-usage", action="store_true", help="leave the run's model, tokens and cost out of the footer")
     b.add_argument("--layout", choices=list(render.LAYOUTS), help="default: compact for email delivery, else full")
     pr = sub.add_parser("print")
     pr.add_argument("pdf")

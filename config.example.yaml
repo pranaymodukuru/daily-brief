@@ -41,6 +41,13 @@ sources:
   #   - {name: "Google DeepMind", url: "https://deepmind.google/blog/rss.xml"}
   #   - {name: "Hugging Face", url: "https://huggingface.co/blog/feed.xml"}
 
+# The footer shows the model, tokens and cost of each run, priced at Anthropic
+# API list prices (built in for current models). Override or add prices,
+# in USD per million tokens [input, output, cache read]:
+# cost:
+#   prices:
+#     claude-opus-5-5: [4.00, 20.00, 0.20]
+
 paper:
   pages: 2                   # 2 = one double-sided sheet
 

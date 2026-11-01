@@ -176,7 +176,9 @@ Run `uv run daily-brief build out/{today}.json --no-record`. It prints the
 layout, page count and size. The `full` layout must have exactly as many pages
 as the plan; `compact` (email delivery) must be 1 page. If it overflows,
 shorten the longest blocks and rebuild. When it fits, run
-`uv run daily-brief build out/{today}.json` to save progress.
+`uv run daily-brief build out/{today}.json` to save progress. Make that the
+last build: the footer records the model, tokens and cost of this run up to
+that moment, read from the Claude Code transcript.
 
 ## 6. Deliver
 

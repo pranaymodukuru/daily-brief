@@ -1,5 +1,9 @@
 /* Print stylesheet: A4, two dense pages (front: news, back: practice). Mostly black ink. */
-@page { size: A4; margin: 9mm 10mm 9mm; }
+@page {
+  size: A4; margin: 9mm 10mm 9mm;
+  @bottom-left { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 5.4pt; color: #777; vertical-align: top; padding-top: 1.5mm; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font-family: "Helvetica Neue", Arial, sans-serif; font-size: 5.4pt; color: #777; vertical-align: top; padding-top: 1.5mm; }
+}
 
 :root { --ink: #111; --muted: #555; --rule: #999; --accent: #8a1c1c; }
 

@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>{{ title }} · {{ c.date }}</title>
-<style>{{ css }}</style>
+<style>{{ css }}
+{% if footer %}@page { @bottom-left { content: "{{ footer | replace('"', "'") }}"; } }{% endif %}</style>
 </head>
 <body>
 {% for page in c.pages %}

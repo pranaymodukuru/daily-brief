@@ -71,6 +71,8 @@ Everything lives in `config.yaml` (see [config.example.yaml](config.example.yaml
 
 **Building blocks.** Each section is printed as one of a few generic blocks: news (with optional lead stories and source stamps), stat (number of the day), list, text, terms, prompt (boxed exercise), quote, lines (space to write), checklist, agenda (today's meetings), exercise (numbered items with answer lines) and sudoku (generated in code, with yesterday's solution). They're defined in [`blocks.html.j2`](src/daily_brief/templates/blocks.html.j2), so new kinds of content need no code changes.
 
+**Footer.** Each page shows its number, the model that wrote the paper, the paper's size in tokens, and how many tokens the run used with an approximate cost at Anthropic API list prices. The numbers come from Claude Code's own transcript of the run. On a Claude subscription you don't pay per token, so the cost shows what the run would cost on the API. Use `build --no-usage` to leave it out.
+
 ## Schedule it
 
 In the Claude desktop app, open **Code → Scheduled → New task**, choose a daily time (for example 06:30), and use this prompt with your own path:
