@@ -10,6 +10,11 @@
   {%- if h.topic %}<p class="kicker">{{ h.topic }}</p>{% endif %}
   {%- if compact %}
   <p class="story"><b>{{ h.title }}.</b> {{ h.summary }}</p>
+  {%- elif h.points %}
+  <article class="story lead"><h3>{{ h.title }}</h3>
+    <p>{{ h.summary }}</p>
+    <ul class="tight">{% for pt in h.points %}<li>{{ pt }}</li>{% endfor %}</ul>
+    {%- if h.source %}<p class="src">{{ h.source }}</p>{% endif %}</article>
   {%- else %}
   <article class="story"><h3>{{ h.title }}</h3>
     <p>{{ h.summary }}{% if h.source %} <span class="src">({{ h.source }})</span>{% endif %}</p></article>
@@ -48,6 +53,26 @@
 {%- elif k == "lines" -%}
   {%- if b.prompt %}<p>{{ b.prompt }}</p>{% endif %}
   {%- if not compact %}<div class="lines">{% for _ in range(b.count or 4) %}<span></span>{% endfor %}</div>{% endif %}
+
+{%- elif k == "agenda" -%}
+  {%- if b["items"] %}
+  <table class="agenda">{% for e in b["items"] %}<tr><td class="t">{{ e.time }}</td><td><b>{{ e.title }}</b>{% if e.note %} <span class="faint">{{ e.note }}</span>{% endif %}</td></tr>{% endfor %}</table>
+  {%- else %}<p class="faint">{{ b.empty or "No meetings today." }}</p>{% endif %}
+
+{%- elif k == "exercise" -%}
+  {%- if b.intro %}<p class="faint">{{ b.intro }}</p>{% endif %}
+  {%- if b.body %}<p>{{ b.body }}</p>{% endif %}
+  <ol class="tight ex-items">{% for i in b["items"] %}<li>{{ i }}{% if not compact %}{% for _ in range(b.get("lines", 1)) %}<span class="wline"></span>{% endfor %}{% endif %}</li>{% endfor %}</ol>
+
+{%- elif k == "sudoku" -%}
+  <div class="sudoku-wrap">
+    <table class="sudoku">{% for r in range(9) %}<tr>{% for c in range(9) %}{% set v = b.grid[r * 9 + c] %}<td{% if c % 3 == 2 and c < 8 %} class="rb"{% endif %}>{{ v or "" }}</td>{% endfor %}</tr>{% endfor %}</table>
+    {%- if b.prev_solution and not compact %}
+    <div class="prev"><p class="faint">Yesterday's solution</p>
+      <table class="sudoku mini">{% for r in range(9) %}<tr>{% for c in range(9) %}<td{% if c % 3 == 2 and c < 8 %} class="rb"{% endif %}>{{ b.prev_solution[r * 9 + c] }}</td>{% endfor %}</tr>{% endfor %}</table>
+    </div>
+    {%- endif %}
+  </div>
 
 {%- elif k == "checklist" and not compact -%}
   <div class="box checklist">

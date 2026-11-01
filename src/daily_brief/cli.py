@@ -21,7 +21,8 @@ import yaml
 from daily_brief import deliver, render, state
 
 ROOT = Path.cwd()
-BLOCK_KINDS = {"news", "list", "text", "terms", "prompt", "quote", "lines", "checklist"}
+BLOCK_KINDS = {"news", "list", "text", "terms", "prompt", "quote", "lines", "checklist",
+               "agenda", "exercise", "sudoku"}
 
 
 def load_config() -> dict:

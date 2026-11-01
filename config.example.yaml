@@ -20,6 +20,9 @@ sources:
   # newsletters:
   #   query: "from:(news@example.com OR hello@example.org)"
   #   lookback_days: 2
+  # Today's meetings on the front page (needs the Google Calendar connector).
+  # calendar:
+  #   calendars: ["primary"]
 
 paper:
   pages: 2                   # 2 = one double-sided sheet
