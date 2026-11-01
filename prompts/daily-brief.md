@@ -10,7 +10,7 @@ build on the last. Work in the repository root.
 Run `uv run daily-brief context`. It returns JSON with:
 - `config.reader` (name, language) and `config.wishes`: who this is for and what they want
 - `config.sources`: optional inputs, e.g. `newsletters.query` (a Gmail search)
-  and `calendar` (today's meetings)
+  `calendar` (today's meetings) and `hackernews` (the HN front page)
 - `config.paper.pages`: how many printed pages (default 2 = one double-sided sheet)
 - `plan`: the saved paper design, and `replan`: true if there's no plan yet or the wishes changed
 - `subjects`: for each learning subject, `due_for_review` (use all of them),
@@ -67,10 +67,21 @@ plan exactly.
   to 24:00 local time, ordered by start time. Show time and title only, plus
   a short note if it helps (e.g. "prep: read X"). Skip declined events. No
   meetings: an empty `items` list, which prints "No meetings today."
+- **Hacker News** (if `sources.hackernews` is set): run
+  `uv run daily-brief hn --top {top or 30}`. It returns the front page with
+  points and comments. Pick what the wishes ask for, e.g. trending topics as
+  short bullets and AI stories as headlines. Write a story's summary only
+  from what you know for sure: the title, or the linked page if you open it.
+  Never guess what an article says.
 - **News** (web search): only from the last 24–48 hours, from reputable
   sources, named briefly. **Never invent news.** If there's little that's
   fresh, print fewer items.
 - **Everything else** you write yourself. Quotes must be real and correctly attributed.
+
+**Source stamps.** Anything taken from an email gets a `stamp` so the reader
+can find it again: `"30 Oct 16:03 · <subject> · <sender address>"` (local
+time, the email's subject as sent). Hacker News items get
+`"Hacker News · 393 points · 194 comments"`. Stamps print in the smallest type.
 
 ## 4. Write today's edition
 
@@ -95,10 +106,10 @@ content. Block kinds:
 
 | kind | fields |
 |---|---|
-| `news` | `title`, `items: [{topic, title, summary (2–3 sentences), source}]` |
-| `list` | `title`, `items: [str]`, optional `intro`, `ordered: bool` |
+| `news` | `title`, `items: [{topic, title, summary (2–3 sentences), source, stamp?}]` |
+| `list` | `title`, `items: [str or {text, stamp}]`, optional `intro`, `ordered: bool` |
 | `text` | `title`, `body` (a short paragraph), optional `note` (e.g. "Try it: …") |
-| `terms` | `title`, `items: [{term, pos?, pron?, meaning, example?, tip?}]`: words, phrases, concepts |
+| `terms` | `title`, `items: [{term, level?, pos?, pron?, meaning, example?, tip?}]`: words, phrases, concepts. `dense: true` prints one compact row per term, good for 6–10 words |
 | `prompt` | `title`, `body` (the task), optional `steps: [str]`: shown in a box, e.g. a speaking or writing exercise |
 | `quote` | `text`, `author` |
 | `lines` | `title`, `prompt`, `count` (blank lines to write on) |
@@ -118,6 +129,13 @@ reader, and keep the rest to 1–2 sentences.
 
 Introduce a few items a day and include every `due_for_review` term in a
 review block. Name subjects consistently across days.
+
+When the wishes give a level range (e.g. "A1 to B2"), don't teach one level:
+spread each day's words and exercises across the range and tag every term
+with its `level`, so the reader brushes up all of it regularly. Language
+exercises should be varied and quick: fill-in gaps, articles and endings,
+word order, choosing the right word, short translations, rewriting a
+sentence. Answers always come the next day (`for_tomorrow`).
 
 **Fit:** each page of the full layout is one A4 side, set small and dense.
 Keep summaries tight. Page one should be full: if there is space left, add short stories

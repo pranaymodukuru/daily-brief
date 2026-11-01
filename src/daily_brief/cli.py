@@ -7,12 +7,14 @@ writing; these commands handle state, rendering and printing.
   daily-brief build CONTENT.json   validate, render PDF, record progress
   daily-brief print PDF            send a PDF to the configured printer
   daily-brief deliver PDF          print or email it, per delivery.mode
+  daily-brief hn [--top N]         today's Hacker News front page (JSON)
 """
 
 import argparse
 import json
 import subprocess
 import sys
+import urllib.request
 from datetime import date
 from pathlib import Path
 
@@ -65,6 +67,23 @@ def cmd_build(args, cfg):
     print(f"{pdf} ({layout}, {pages} pages, {pdf.stat().st_size // 1024} KB)")
 
 
+def cmd_hn(args, cfg):
+    """Front-page stories, most points first, so the agent needn't browse HN."""
+    url = f"https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage={args.top}"
+    with urllib.request.urlopen(url, timeout=20) as r:
+        hits = json.load(r)["hits"]
+    stories = [{
+        "title": h["title"],
+        "url": h.get("url") or f"https://news.ycombinator.com/item?id={h['objectID']}",
+        "points": h.get("points", 0),
+        "comments": h.get("num_comments", 0),
+        "posted": h["created_at"][:16].replace("T", " "),
+        "discussion": f"https://news.ycombinator.com/item?id={h['objectID']}",
+    } for h in hits]
+    stories.sort(key=lambda x: -x["points"])
+    print(json.dumps(stories, indent=2, ensure_ascii=False))
+
+
 def cmd_print(args, cfg):
     d = cfg["delivery"]
     cmd = ["lp"]
@@ -102,6 +121,8 @@ def main():
     dl = sub.add_parser("deliver", help="print (lp) or email (SMTP), per delivery.mode")
     dl.add_argument("pdf")
     dl.add_argument("--dry-run", action="store_true", help="build the email but don't send it")
+    hn = sub.add_parser("hn", help="today's Hacker News front page as JSON")
+    hn.add_argument("--top", type=int, default=30)
     args = p.parse_args()
-    cmds = {"context": cmd_context, "build": cmd_build, "print": cmd_print, "deliver": cmd_deliver}
+    cmds = {"context": cmd_context, "build": cmd_build, "print": cmd_print, "deliver": cmd_deliver, "hn": cmd_hn}
     cmds[args.cmd](args, load_config())

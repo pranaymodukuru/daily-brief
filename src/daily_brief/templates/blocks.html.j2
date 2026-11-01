@@ -9,31 +9,36 @@
   {%- for h in (b["items"][:3] if compact else b["items"]) %}
   {%- if h.topic %}<p class="kicker">{{ h.topic }}</p>{% endif %}
   {%- if compact %}
-  <p class="story"><b>{{ h.title }}.</b> {{ h.summary }}</p>
+  <p class="story"><b>{{ h.title }}.</b> {{ h.summary }}</p>{% if h.stamp %}<p class="stamp">{{ h.stamp }}</p>{% endif %}
   {%- elif h.points %}
   <article class="story lead"><h3>{{ h.title }}</h3>
     <p>{{ h.summary }}</p>
     <ul class="tight">{% for pt in h.points %}<li>{{ pt }}</li>{% endfor %}</ul>
-    {%- if h.source %}<p class="src">{{ h.source }}</p>{% endif %}</article>
+    {%- if h.source %}<p class="src">{{ h.source }}</p>{% endif %}
+    {%- if h.stamp %}<p class="stamp">{{ h.stamp }}</p>{% endif %}</article>
   {%- else %}
   <article class="story"><h3>{{ h.title }}</h3>
-    <p>{{ h.summary }}{% if h.source %} <span class="src">({{ h.source }})</span>{% endif %}</p></article>
+    <p>{{ h.summary }}{% if h.source %} <span class="src">({{ h.source }})</span>{% endif %}</p>
+    {%- if h.stamp %}<p class="stamp">{{ h.stamp }}</p>{% endif %}</article>
   {%- endif %}
   {%- endfor %}
 
 {%- elif k == "list" -%}
   {%- if b.intro %}<p class="faint">{{ b.intro }}</p>{% endif %}
   {%- set tag = "ol" if b.ordered else "ul" %}
-  <{{ tag }} class="tight">{% for i in b["items"] %}<li>{{ i }}</li>{% endfor %}</{{ tag }}>
+  <{{ tag }} class="tight">{% for i in b["items"] %}<li>{% if i is mapping %}{{ i.text }}{% if i.stamp %}<span class="stamp">{{ i.stamp }}</span>{% endif %}{% else %}{{ i }}{% endif %}</li>{% endfor %}</{{ tag }}>
 
 {%- elif k == "text" -%}
   <p>{{ b.body }}</p>
   {%- if b.note %}<p class="use">{{ b.note }}</p>{% endif %}
 
+{%- elif k == "terms" and b.dense -%}
+  <table class="dense">{% for t in b["items"] %}<tr><td><b>{{ t.term }}</b>{% if t.level %} <span class="lvl">{{ t.level }}</span>{% endif %}</td><td>{{ t.meaning }}{% if t.example and not compact %}<br><i>{{ t.example }}</i>{% endif %}</td></tr>{% endfor %}</table>
+
 {%- elif k == "terms" -%}
   {%- for t in b["items"] %}
   <div class="word">
-    <p><b class="w">{{ t.term }}</b>{% if t.pos %} <span class="pos">{{ t.pos }}</span>{% endif %}{% if t.pron and not compact %} <span class="ipa">{{ t.pron }}</span>{% endif %}{% if compact %}: {{ t.meaning }}{% endif %}</p>
+    <p><b class="w">{{ t.term }}</b>{% if t.level %} <span class="lvl">{{ t.level }}</span>{% endif %}{% if t.pos %} <span class="pos">{{ t.pos }}</span>{% endif %}{% if t.pron and not compact %} <span class="ipa">{{ t.pron }}</span>{% endif %}{% if compact %}: {{ t.meaning }}{% endif %}</p>
     {%- if not compact %}<p>{{ t.meaning }}</p>{% endif %}
     {%- if t.example %}<p class="ex">“{{ t.example }}”</p>{% endif %}
     {%- if t.tip and not compact %}<p class="use">{{ t.tip }}</p>{% endif %}

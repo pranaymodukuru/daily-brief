@@ -68,3 +68,10 @@ blockquote cite { display: block; font-style: normal; font-size: 7pt; color: var
 .prev p { margin-bottom: 0.5mm; }
 
 .key { margin-top: 3mm; border-top: 0.6pt solid var(--ink); padding-top: 1mm; font-size: 7pt; color: var(--muted); }
+
+/* Source stamp for anything from an email or feed: the smallest type on the page. */
+.stamp { display: block; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 5.4pt; line-height: 1.2; color: #777; margin: 0.3mm 0 0; }
+.lvl { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 5.6pt; border: 0.4pt solid var(--muted); border-radius: 0.6mm; padding: 0 0.6mm; color: var(--muted); vertical-align: 0.2mm; }
+.dense { border-collapse: collapse; width: 100%; margin-bottom: 1mm; }
+.dense td { padding: 0.4mm 0; vertical-align: top; border-bottom: 0.4pt solid #ddd; }
+.dense td:first-child { white-space: nowrap; padding-right: 2mm; width: 1%; }
