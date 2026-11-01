@@ -34,6 +34,7 @@ def to_html(content: dict, config: dict, layout: str = "full") -> str:
     return env.get_template(f"{name}.html.j2").render(
         c=content,
         cfg=config,
+        title=content.get("title") or (config.get("paper") or {}).get("title") or "The Daily Brief",
         css=(TEMPLATES / f"{name}.css").read_text(),
         long_date=day.strftime("%A, %-d %B %Y"),
     )

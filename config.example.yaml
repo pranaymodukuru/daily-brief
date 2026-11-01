@@ -1,68 +1,28 @@
-# Copy to config.yaml (gitignored) and make it yours. Everything the paper
-# contains is decided here: who it's for, which sections, in what order.
+# Copy to config.yaml (gitignored) and make it yours.
 
 reader:
   name: "Alex"
-  # Who the paper is for. Every section is written with this in mind.
-  about: >
-    Curious generalist who likes to start the day informed, learn one new
-    thing, and grow their vocabulary.
-  language: "English"
+  language: "English"        # the language the paper is written in
 
-# Extra guidance for the writer, applied to the whole paper (tone, length, …).
-instructions: >
-  Warm but concise. Plain language. No jargon without a short explanation.
+# What you want from your morning paper, in your own words. Claude designs
+# the paper around this, keeps the layout until you change it, and builds
+# learning from day to day. Be as specific as you like: interests, goals,
+# levels, tone, what to leave out.
+wishes: |
+  Keep me informed about world news and science, without the doom.
+  Teach me one interesting thing every day.
+  Help me grow my English vocabulary, with regular review.
+  End with something to think or write about.
+
+# Optional inputs.
+sources:
+  # Newsletters from your inbox (needs the Gmail connector). A Gmail search.
+  # newsletters:
+  #   query: "from:(news@example.com OR hello@example.org)"
+  #   lookback_days: 2
 
 paper:
-  title: "The Daily Brief"
-  # Pages in print order; each has a left and right column of section ids.
-  # Two pages print as one double-sided sheet. The compact (email) layout
-  # puts page 1 on the left and the rest on the right of a single page.
-  pages:
-    - left: [headlines]
-      right: [trends, quote]
-    - heading: "Learn"
-      subheading: "Five minutes, every morning"
-      left: [vocabulary, phrase, checklist]
-      right: [on_this_day, lesson, reflection]
-
-# Options per section. Built-in section types:
-#   headlines, trends, newsletters, quote, vocabulary, phrase, lesson,
-#   speaking, drill, pronunciation, reflection, checklist
-# Any other id needs `type: custom` plus `title` and `instructions`.
-sections:
-  headlines:
-    count: 4
-    topics: ["World", "Science", "Technology"]
-  trends:
-    topics: ["Technology", "Climate", "Culture"]
-    points: 2
-  # Needs the Gmail connector. Uses a Gmail search; add it to a page to enable.
-  newsletters:
-    query: "from:(news@example.com OR hello@example.org)"
-    lookback_days: 2
-  vocabulary:
-    new_per_day: 3       # new words each day; reviewed again after 1, 3, 7, 21… days
-    max_review: 3
-    focus: "useful, precise everyday words"
-  lesson:
-    title: "Learn one thing"
-    themes: ["how things work", "history", "money", "health", "thinking tools"]
-  reflection: {}
-  quote: {}
-  phrase:
-    title: "Idiom"
-  checklist:
-    items: ["Read the front page", "Use a new word today", "Tell someone what you learned"]
-  on_this_day:
-    type: custom
-    title: "On this day"
-    instructions: "Two or three notable events that happened on today's date in history, one line each."
-
-  # More built-ins you can add to a page, e.g. for speaking practice:
-  # speaking:  { seconds: 60, focus: "impromptu answers to everyday questions" }
-  # drill:     { focus: "rewrite wordy sentences more concisely" }
-  # pronunciation: {}
+  pages: 2                   # 2 = one double-sided sheet
 
 delivery:
   # lp    – print on a local printer (computer on, same network)

@@ -2,23 +2,28 @@
 
 A personal printed morning paper, written by Claude every day and printed on your home printer.
 
-You decide what's in it. Pick from built-in sections, such as headlines, trends in topics you follow, takeaways from newsletters in your inbox, vocabulary with spaced repetition, a short lesson, a quote, speaking and writing drills or a reflection question. Or describe your own sections in plain language, like "on this day in history" or "a chess puzzle". Arrange them over one double-sided sheet.
+You don't configure sections. You describe what you want in your own words, for example:
 
-The paper remembers what it has taught you: `state/progress.json` tracks the words you've learned and when they're due for review, and records past lessons and prompts so nothing repeats.
+> Keep me up to date on climate tech. I'm learning German (A2), so teach me a few words and one grammar point a day. I want to get better at presentations.
+
+Claude designs a paper around that: German words with review, a grammar box, climate headlines and a speaking exercise. It keeps the same layout every day until you change your wishes.
+
+The paper also remembers what it has taught you. Each subject you're learning gets spaced-repetition review and running notes, so lessons build from day to day instead of starting over.
 
 ## How it works
 
 ```
 Claude desktop app, scheduled task (e.g. 06:30)
    │  follows prompts/daily-brief.md
-   │  uv run daily-brief context      what's due for review, what not to repeat
-   │  Gmail connector + web search    newsletters, news, trends
-   │  writes out/YYYY-MM-DD.json
-   │  uv run daily-brief build …      HTML ► PDF, records progress
+   │  uv run daily-brief context      wishes, saved plan, what's due for review
+   │  (first run / wishes changed)    designs the paper ► state/plan.json
+   │  Gmail connector + web search    newsletters, news
+   │  writes out/YYYY-MM-DD.json      today's content as generic blocks
+   │  uv run daily-brief build …      HTML ► PDF, records learning progress
    └► uv run daily-brief deliver …    lp ► your printer (double-sided)
 ```
 
-Claude does the research and writing; a small Python CLI handles the deterministic parts (state, rendering, printing). It runs on your Claude subscription: no API key and no server.
+Claude does the editing and writing; a small Python CLI handles the deterministic parts (state, rendering, printing). It runs on your Claude subscription: no API key and no server.
 
 ## Requirements
 
@@ -37,7 +42,7 @@ uv sync
 cp config.example.yaml config.yaml
 ```
 
-Edit `config.yaml`; see [Make it yours](#make-it-yours) below. At minimum, set `reader.about` and `delivery.printer` (your printer's name from `lpstat -p`).
+Edit `config.yaml`: write your `wishes` (see [Make it yours](#make-it-yours)) and set `delivery.printer` to your printer's name from `lpstat -p`.
 
 Check that rendering and printing work with the sample edition:
 
@@ -50,37 +55,16 @@ uv run daily-brief deliver out/2026-01-01.pdf                       # prints it
 
 Everything lives in `config.yaml` (see [config.example.yaml](config.example.yaml)):
 
-- **`reader`:** who the paper is for and what they care about. Every section is written for this person.
-- **`instructions`:** tone and style for the whole paper.
-- **`paper.pages`:** the layout. Each page has a `left` and `right` column of section ids, in order. Two pages make one double-sided sheet.
-- **`sections`:** options for each section, such as `topics`, `count` and `focus`.
+- **`wishes`:** what you want from the paper, in plain language: interests, things you're learning and at what level, habits, tone, what to leave out.
+- **`reader`:** your name and the language the paper is written in.
+- **`sources.newsletters`:** optional. A Gmail search for newsletters to summarise (needs the Gmail connector).
+- **`paper.pages`:** how many printed pages; 2 makes one double-sided sheet.
 
-| Built-in section | What it prints | Key options |
-|---|---|---|
-| `headlines` | News from the last 1–2 days | `topics`, `count` |
-| `trends` | What's changing in each topic | `topics`, `points` |
-| `newsletters` | One takeaway per newsletter (Gmail connector) | `query`, `lookback_days` |
-| `quote` | A real, attributed quote | `focus` |
-| `vocabulary` | New words plus spaced-repetition review | `new_per_day`, `max_review`, `focus` |
-| `phrase` | An idiom or useful phrase | |
-| `lesson` | A short practical lesson | `themes` |
-| `speaking` | A timed speaking prompt with a structure | `seconds`, `focus` |
-| `drill` | Sentences to improve, answers the next day | `focus` |
-| `pronunciation` | A tricky phrase and a tip | |
-| `reflection` | A question, with lines to write on | |
-| `checklist` | Your daily habits, to tick off | `items` |
+**The plan.** On the first run, Claude turns your wishes into a plan, saved as `state/plan.json`: which sections, in what order, with what purpose. Every edition follows that plan, so the paper feels familiar. Edit your wishes and the next run redesigns it. To force a redesign without changing them, delete `state/plan.json`.
 
-**Custom sections:** use any id you like, with `type: custom`:
+**Learning.** Anything you're learning becomes a subject in `state/progress.json`, such as "German" or "English vocabulary". New terms come back for review after 1, 3, 7 and 21 days and so on, and a short note per subject records where the lessons left off.
 
-```yaml
-sections:
-  chess:
-    type: custom
-    title: "Puzzle"
-    instructions: "A mate-in-two chess puzzle in algebraic notation, solution printed tomorrow."
-```
-
-Then add `chess` to a page. Any section that isn't on a page is skipped.
+**Building blocks.** Each section is printed as one of a few generic blocks: news, list, text, terms, prompt (boxed exercise), quote, lines (space to write) and checklist. They're defined in [`blocks.html.j2`](src/daily_brief/templates/blocks.html.j2), so new kinds of content need no code changes.
 
 ## Schedule it
 
@@ -99,11 +83,12 @@ In the Claude desktop app, open **Code → Scheduled → New task**, choose a da
 sudo pmset repeat wakeorpoweron MTWRFSU 06:25:00    # undo: sudo pmset repeat cancel
 ```
 
-## Ideas
+## Ideas for wishes
 
-- **Language or speaking practice:** combine `vocabulary`, `speaking`, `drill` and `pronunciation`, then practise the speaking prompt with Claude's voice mode and ask for feedback.
-- **Focused news:** a front page of `headlines` and `newsletters` only, with a `trends` column for the industry you work in.
-- **Family edition:** custom sections for a riddle, a fun fact and the weather, written for kids.
+- *"I'm learning Spanish (B1). Give me five words with review, one grammar point, and a short news story in simple Spanish."*
+- *"Help me become a better public speaker: one technique a day and a 60-second speaking prompt I can practise with Claude's voice mode."*
+- *"Front page: the most important world news and AI news. Back page: a chess puzzle with yesterday's solution."*
+- *"For my 10-year-old: a fun fact, a riddle, a new word and a drawing prompt."*
 
 ## Manual use
 

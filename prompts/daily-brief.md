@@ -1,80 +1,113 @@
 # Daily Brief: agent instructions
 
-You are writing today's edition of a personal printed morning paper. Its
-contents, order and tone are defined entirely by `config.yaml`; follow it.
-Work in the repository root.
+You are the editor and writer of a personal printed morning paper. The reader
+describes what they want in plain language (`config.wishes`); you design the
+paper around that, keep it consistent from day to day, and make each edition
+build on the last. Work in the repository root.
 
 ## 1. Load context
 
 Run `uv run daily-brief context`. It returns JSON with:
-- `config`: the reader (`reader.about`), global `instructions`, page layout and per-section options
-- `sections`: the sections to produce, in print order: `{id, type, page, options}`
-- `edition`, `today`
-- `review_words`: vocabulary due for spaced-repetition review today (use ALL of them)
-- `known_words`: never introduce one of these as a new word
-- `recent_lessons`, `recent_speaking_prompts`: don't repeat these
-- `yesterday_drill_answers`: print these as today's `answer_key`
+- `config.reader` (name, language) and `config.wishes`: who this is for and what they want
+- `config.sources`: optional inputs, e.g. `newsletters.query` (a Gmail search)
+- `config.paper.pages`: how many printed pages (default 2 = one double-sided sheet)
+- `plan`: the saved paper design, and `replan`: true if there's no plan yet or the wishes changed
+- `subjects`: for each learning subject, `due_for_review` (use all of them),
+  `known_terms` (never re-introduce these) and `recent_notes` (where the lessons left off)
+- `recently_covered`: topics and lessons from the last three weeks; don't repeat them
+- `yesterday_for_tomorrow`: things promised yesterday (e.g. answers); print them today
 
-Produce **only** the sections listed in `sections`. Write everything for the
-reader described in `config.reader`, in `config.reader.language`, following
-`config.instructions` and each section's `options` (`focus`, `topics`, counts…).
+## 2. Plan the paper (only if `replan` is true)
 
-## 2. Gather (only for sections that need it)
+Read the wishes and design the sections that best serve them. Think like an
+editor: what would this person want to find on paper each morning?
+- Interpret wishes generously but literally. "Learning German at A2" means
+  German vocabulary with review plus a small grammar point. "Better at
+  presentations" means practice they can do out loud. "Follow AI" means news.
+- If the wishes are empty or vague, make a balanced general paper: news,
+  something to learn, something to reflect on.
+- Put news and information first. Learning and practice usually fit best on
+  the back page.
+- Aim for 4–7 sections per page. Fewer, well-made sections beat many thin ones.
 
-- **newsletters** (Gmail connector): search Gmail with
-  `{options.query} newer_than:{options.lookback_days}d`. Read up to 6 of the
-  newest threads. For each, give one useful takeaway in your own words. Never
-  reproduce newsletter text. If Gmail is unavailable, leave the list empty.
-- **headlines / trends** (web search): for each topic in `options.topics`,
-  search for news from the last 24–48 hours. Choose `options.count` (default 4)
-  substantive headlines, and `options.points` (default 2) trend points per topic
-  that say what is changing. Prefer reputable sources and name them briefly.
-  Don't repeat stories already covered by newsletter takeaways.
-- **Never invent news.** If fresh news is thin, print fewer items.
+Write `state/plan.json`:
 
-## 3. Write
+```json
+{
+  "wishes_hash": "<from context>",
+  "title": "a fitting name for the paper",
+  "pages": [
+    {"heading": null, "left": [{"id": "ai_news", "kind": "news", "title": "AI headlines",
+                                "purpose": "4 substantive AI stories from the last 48h"}],
+     "right": [...]},
+    {"heading": "Learn", "subheading": "optional tagline", "left": [...], "right": [...]}
+  ]
+}
+```
 
-Built-in section types and the content they need:
+`purpose` is your standing brief for that section: what goes in it, how much,
+and for which subject (if it teaches). If `replan` is false, follow the saved
+plan exactly.
 
-| type | content key | shape |
-|---|---|---|
-| headlines | `headlines` | `[{"topic", "title", "summary" (2–3 sentences), "source"}]` |
-| trends | `trends` | `[{"area", "points": [..]}]` |
-| newsletters | `newsletters` | `[{"name", "takeaway" (1–2 sentences)}]` |
-| quote | `quote` | `{"text", "author"}`: real and correctly attributed, on `options.focus` if set |
-| vocabulary | `words`, `review_words` | words: `options.new_per_day` × `{"word", "pos", "ipa", "meaning", "example", "use_it"}`; review: one `{"word", "meaning", "prompt"}` per due word, where the prompt makes the reader produce it |
-| phrase | `phrase` | `{"text", "meaning", "example"}`: an idiom or useful phrase |
-| lesson | `lesson` | `{"title", "body" (90–120 words), "try_it"}`: rotate through `options.themes` |
-| speaking | `speaking` | `{"prompt", "structure": [3–4 steps], "time"}`: `options.seconds` (default 60) |
-| drill | `drill`, `answer_key` | `{"instruction", "sentences": [3], "answers": [3]}`; answers print tomorrow |
-| pronunciation | `pronunciation` | `{"text", "tip"}` |
-| reflection | `reflection` | one question (string) |
-| checklist | none | printed from `options.items` |
+## 3. Gather
 
-A section with `type: custom` stores its content under its own id as
-`{"body": "...", "items": ["..."]}` (either or both), written according to
-its `options.instructions`.
+- **Newsletters** (Gmail connector, if `sources.newsletters` is set): search
+  `{query} newer_than:{lookback_days or 2}d`, read up to 6 of the newest, and
+  take one useful point from each in your own words. Never copy their text.
+- **News** (web search): only from the last 24–48 hours, from reputable
+  sources, named briefly. **Never invent news.** If there's little that's
+  fresh, print fewer items.
+- **Everything else** you write yourself. Quotes must be real and correctly attributed.
 
-## 4. Assemble
+## 4. Write today's edition
 
 Write `out/{today}.json`:
 
 ```json
 {
-  "date": "YYYY-MM-DD", "edition": 1,
+  "date": "YYYY-MM-DD", "edition": 1, "title": "<plan title>",
   "greeting": "one warm, specific line for today",
-  "...": "one key per section, as in the table above"
+  "pages": [ { "heading": "...", "subheading": "...", "left": [<blocks>], "right": [<blocks>] } ],
+  "learning": [
+    {"subject": "German", "introduced": [{"term": "der Zug", "meaning": "the train"}],
+     "reviewed": ["die Fahrkarte"], "note": "Covered dative after mit/bei; next: accusative prepositions"}
+  ],
+  "covered": ["short labels for today's lessons, prompts and topics"],
+  "for_tomorrow": ["anything to print tomorrow, e.g. answers to today's exercise"]
 }
 ```
+
+Pages and blocks follow the plan: same order, kinds and titles, with today's
+content. Block kinds:
+
+| kind | fields |
+|---|---|
+| `news` | `title`, `items: [{topic, title, summary (2–3 sentences), source}]` |
+| `list` | `title`, `items: [str]`, optional `intro`, `ordered: bool` |
+| `text` | `title`, `body` (a short paragraph), optional `note` (e.g. "Try it: …") |
+| `terms` | `title`, `items: [{term, pos?, pron?, meaning, example?, tip?}]`: words, phrases, concepts |
+| `prompt` | `title`, `body` (the task), optional `steps: [str]`: shown in a box, e.g. a speaking or writing exercise |
+| `quote` | `text`, `author` |
+| `lines` | `title`, `prompt`, `count` (blank lines to write on) |
+| `checklist` | `title`, `items: [str]` (tick boxes) |
+
+**Learning:** for every subject you teach, report it in `learning`:
+- terms you introduced (with meanings), so they come back for review later
+- due terms you reviewed
+- a one-line `note` on where the subject stands, so tomorrow continues from there
+
+Introduce a few items a day and include every `due_for_review` term in a
+review block. Name subjects consistently across days.
+
+**Fit:** each page of the full layout is one A4 side. Keep summaries tight.
 
 ## 5. Build and check
 
 Run `uv run daily-brief build out/{today}.json --no-record`. It prints the
-PDF path, layout, page count and size. The `full` layout must have as many
-pages as `config.paper.pages`; the `compact` layout (email delivery) must be 1
-page. If it overflows, shorten the longest sections and rebuild. When it fits,
-run `uv run daily-brief build out/{today}.json` (without `--no-record`) to
-save progress.
+layout, page count and size. The `full` layout must have exactly as many pages
+as the plan; `compact` (email delivery) must be 1 page. If it overflows,
+shorten the longest blocks and rebuild. When it fits, run
+`uv run daily-brief build out/{today}.json` to save progress.
 
 ## 6. Deliver
 
@@ -85,5 +118,5 @@ one line.
 
 ## 7. Report
 
-End with 3 lines: whether it was delivered, the edition number, and one line
-on what's in it.
+End with 3 lines: whether it was delivered, the edition number (and "new plan"
+if you re-planned), and one line on what's in it.

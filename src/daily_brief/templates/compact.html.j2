@@ -1,20 +1,20 @@
-{% import "sections.html.j2" as s %}<!doctype html>
+{% import "blocks.html.j2" as k %}<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>{{ cfg.paper.title }} · {{ c.date }}</title>
+<title>{{ title }} · {{ c.date }}</title>
 <style>{{ css }}</style>
 </head>
 <body>
-{# One page: the first page's sections on the left, everything else on the right. #}
-{% set pages = cfg.paper.pages %}
+{# One page: the first page's blocks on the left, everything else on the right. #}
+{% set pages = c.pages %}
 <header class="masthead">
-  <h1>{{ cfg.paper.title }}</h1>
+  <h1>{{ title }}</h1>
   <div class="meta"><span>No. {{ c.edition }}</span><span>{{ long_date }}</span><span>{{ cfg.reader.name }}'s edition</span></div>
 </header>
 <div class="cols">
-  <div>{% for id in (pages[0].left or []) + (pages[0].right or []) %}{{ s.section(id, c, cfg, compact=true) }}{% endfor %}</div>
-  <div>{% for p in pages[1:] %}{% for id in (p.left or []) + (p.right or []) %}{{ s.section(id, c, cfg, compact=true) }}{% endfor %}{% endfor %}</div>
+  <div>{% for b in (pages[0].left or []) + (pages[0].right or []) %}{{ k.block(b, compact=true) }}{% endfor %}</div>
+  <div>{% for p in pages[1:] %}{% for b in (p.left or []) + (p.right or []) %}{{ k.block(b, compact=true) }}{% endfor %}{% endfor %}</div>
 </div>
 </body>
 </html>

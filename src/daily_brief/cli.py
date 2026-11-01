@@ -21,26 +21,7 @@ import yaml
 from daily_brief import deliver, render, state
 
 ROOT = Path.cwd()
-# Content key each built-in section type reads; custom sections use their own id.
-CONTENT_KEYS = {
-    "headlines": "headlines", "trends": "trends", "newsletters": "newsletters",
-    "quote": "quote", "vocabulary": "words", "phrase": "phrase", "lesson": "lesson",
-    "speaking": "speaking", "drill": "drill", "pronunciation": "pronunciation",
-    "reflection": "reflection", "checklist": None,
-}
-
-
-def paper_sections(cfg: dict) -> list[dict]:
-    """Sections in print order: [{id, type, page, options}]."""
-    out = []
-    for n, page in enumerate(cfg["paper"]["pages"], 1):
-        for sid in (page.get("left") or []) + (page.get("right") or []):
-            opt = (cfg.get("sections") or {}).get(sid) or {}
-            stype = opt.get("type", sid)
-            if stype != "custom" and stype not in CONTENT_KEYS:
-                sys.exit(f"unknown section '{sid}': add `type: custom` to sections.{sid}")
-            out.append({"id": sid, "type": stype, "page": n, "options": opt})
-    return out
+BLOCK_KINDS = {"news", "list", "text", "terms", "prompt", "quote", "lines", "checklist"}
 
 
 def load_config() -> dict:
@@ -52,19 +33,27 @@ def load_config() -> dict:
 
 def cmd_context(args, cfg):
     st = state.load(ROOT / "state" / "progress.json")
-    vocab = (cfg.get("sections") or {}).get("vocabulary") or {}
-    ctx = state.context(st, date.today(), vocab.get("max_review", 3))
-    ctx["sections"] = paper_sections(cfg)
+    plan_path = ROOT / "state" / "plan.json"
+    plan = json.loads(plan_path.read_text()) if plan_path.exists() else None
+    ctx = state.context(st, plan, cfg, date.today())
     ctx["config"] = cfg
     print(json.dumps(ctx, indent=2, ensure_ascii=False))
 
 
+def validate(content: dict) -> list[str]:
+    errors = [f"missing '{k}'" for k in ("date", "pages") if k not in content]
+    for n, page in enumerate(content.get("pages", []), 1):
+        for col in ("left", "right"):
+            for b in page.get(col) or []:
+                if b.get("kind") not in BLOCK_KINDS:
+                    errors.append(f"page {n} {col}: unknown block kind {b.get('kind')!r}")
+    return errors
+
+
 def cmd_build(args, cfg):
     content = json.loads(Path(args.content).read_text())
-    keys = [s["id"] if s["type"] == "custom" else CONTENT_KEYS[s["type"]] for s in paper_sections(cfg)]
-    missing = [k for k in ["date", *keys] if k and k not in content]
-    if missing:
-        sys.exit(f"content is missing: {', '.join(missing)}")
+    if errors := validate(content):
+        sys.exit("invalid content: " + "; ".join(errors))
     layout = args.layout or ("compact" if cfg["delivery"]["mode"] == "email" else "full")
     pdf = ROOT / "out" / f"{content['date']}.pdf"
     pages = render.to_pdf(content, cfg, pdf, layout)
@@ -91,7 +80,7 @@ def cmd_deliver(args, cfg):
     if cfg["delivery"]["mode"] == "lp":
         return cmd_print(args, cfg)
     pdf = Path(args.pdf)
-    subject = f"{cfg['paper']['title']}, {pdf.stem}"
+    subject = f"{(cfg.get('paper') or {}).get('title', 'The Daily Brief')}, {pdf.stem}"
     print(deliver.send(pdf, cfg["delivery"]["email_to"], subject, dry_run=args.dry_run))
 
 

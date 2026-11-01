@@ -1,25 +1,44 @@
 {
   "date": "2026-01-01",
   "edition": 1,
-  "greeting": "Good morning. This is a sample edition; the scheduled job writes a fresh one every day from your config.",
-  "headlines": [
-    {"topic": "World", "title": "Sample headline: the day's most important story appears here", "summary": "Each headline is researched from news published in the last day or two and summarised in two or three sentences, in plain language, with its source named.", "source": "Example News"},
-    {"topic": "Science", "title": "Sample headline: topics come from your config", "summary": "Set sections.headlines.topics to whatever you follow, from local politics to football to astronomy.", "source": "Example Journal"},
-    {"topic": "Technology", "title": "Sample headline: fewer stories on slow news days", "summary": "The writer is told never to invent news. When there is little that's fresh, it prints fewer items rather than filler.", "source": "Example Wire"}
+  "title": "The Daily Brief",
+  "greeting": "Good morning. This is a sample edition; your own paper is designed from the wishes in your config.",
+  "pages": [
+    {
+      "left": [
+        {"kind": "news", "title": "Headlines", "items": [
+          {"topic": "World", "title": "Sample headline: the day's most important story appears here", "summary": "News is researched from the last day or two and summarised in two or three plain sentences, with its source named.", "source": "Example News"},
+          {"topic": "Science", "title": "Sample headline: topics follow your wishes", "summary": "Mention what you follow, from local politics to astronomy, and the front page adapts.", "source": "Example Journal"},
+          {"topic": "Good news", "title": "Sample headline: fewer stories on slow days", "summary": "The writer is told never to invent news. When little is fresh, it prints fewer items rather than filler.", "source": "Example Wire"}
+        ]}
+      ],
+      "right": [
+        {"kind": "text", "title": "One thing to know", "body": "Honeybees communicate the direction and distance of flowers with a 'waggle dance': the angle of the dance relative to vertical matches the angle of the food source relative to the sun.", "note": "Sample: a daily explainer, because the wishes ask to learn one interesting thing a day."},
+        {"kind": "list", "title": "On this day", "items": ["Sample: notable events on today's date, one line each.", "Sections like this appear when your wishes suggest them."]},
+        {"kind": "quote", "text": "The beginning is the most important part of the work.", "author": "Plato"}
+      ]
+    },
+    {
+      "heading": "Learn",
+      "subheading": "Five minutes, every morning",
+      "left": [
+        {"kind": "terms", "title": "Words of the day", "items": [
+          {"term": "lucid", "pos": "adjective", "pron": "/ˈluː.sɪd/", "meaning": "Expressed clearly; easy to understand.", "example": "She gave a lucid explanation of a complicated idea.", "tip": "Use it: describe something you read today as lucid, or not."},
+          {"term": "candid", "pos": "adjective", "pron": "/ˈkæn.dɪd/", "meaning": "Truthful and straightforward; frank.", "example": "Thanks for the candid feedback; it helped."},
+          {"term": "succinct", "pos": "adjective", "pron": "/səkˈsɪŋkt/", "meaning": "Briefly and clearly expressed.", "example": "Keep the update succinct: three bullet points."}
+        ]},
+        {"kind": "checklist", "title": "Today", "items": ["Read the front page", "Use a new word today", "Tell someone what you learned"]}
+      ],
+      "right": [
+        {"kind": "text", "title": "Thinking tool: the Feynman technique", "body": "To check whether you really understand something, explain it in simple words to someone with no background. Where you reach for jargon or get stuck, you've found a gap: go back, fill it, and simplify again.", "note": "Try it: explain one idea from the front page out loud in under a minute."},
+        {"kind": "prompt", "title": "Write for five minutes", "body": "What is one thing you learned this week that changed how you see something?", "steps": ["Describe what you believed before.", "What changed it?", "What will you do differently?"]},
+        {"kind": "lines", "title": "Notes", "prompt": "", "count": 5}
+      ]
+    }
   ],
-  "trends": [
-    {"area": "Technology", "points": ["Sample trend: what is changing, not just what happened.", "Two short points per topic by default."]},
-    {"area": "Climate", "points": ["Sample trend: configure topics under sections.trends.", "Set points: 1 for a shorter column."]}
+  "learning": [
+    {"subject": "English vocabulary", "introduced": [{"term": "lucid", "meaning": "clear, easy to understand"}, {"term": "candid", "meaning": "truthful and straightforward"}, {"term": "succinct", "meaning": "briefly and clearly expressed"}], "reviewed": [], "note": "Started with words for clear communication."}
   ],
-  "quote": {"text": "The beginning is the most important part of the work.", "author": "Plato"},
-  "words": [
-    {"word": "lucid", "pos": "adjective", "ipa": "/ˈluː.sɪd/", "meaning": "Expressed clearly; easy to understand.", "example": "She gave a lucid explanation of a complicated idea.", "use_it": "Describe something you read today as lucid, or not."},
-    {"word": "candid", "pos": "adjective", "ipa": "/ˈkæn.dɪd/", "meaning": "Truthful and straightforward; frank.", "example": "Thanks for the candid feedback; it helped.", "use_it": "Ask someone for their candid opinion today."},
-    {"word": "succinct", "pos": "adjective", "ipa": "/səkˈsɪŋkt/", "meaning": "Briefly and clearly expressed.", "example": "Keep the update succinct: three bullet points.", "use_it": "Write one message today that is genuinely succinct."}
-  ],
-  "review_words": [],
-  "phrase": {"text": "to get the ball rolling", "meaning": "To start an activity or process.", "example": "I'll get the ball rolling with a quick summary."},
-  "on_this_day": {"items": ["Sample: notable events on today's date appear here, one line each.", "This is a custom section, defined in config.yaml with plain-language instructions."]},
-  "lesson": {"title": "The Feynman technique", "body": "To check whether you really understand something, try to explain it in simple words to someone with no background in it. Where you reach for jargon or get stuck, you've found a gap. Go back to the source, fill the gap, and simplify your explanation again. Repeat until a twelve-year-old could follow it. The technique works for anything, from how vaccines work to why interest rates matter, because explaining forces you to organise what you know.", "try_it": "Pick one idea from today's front page and explain it out loud in under a minute."},
-  "reflection": "What is one thing you learned this week that changed how you see something?"
+  "covered": ["Feynman technique", "honeybee waggle dance"],
+  "for_tomorrow": []
 }

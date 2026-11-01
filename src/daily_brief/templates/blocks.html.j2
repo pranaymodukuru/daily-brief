@@ -1,0 +1,58 @@
+{# Generic building blocks. The agent designs sections from the reader's
+   wishes and expresses each one as a block of one of these kinds. #}
+
+{% macro block(b, compact=false) %}
+{%- set k = b.kind -%}
+{%- if b.title and k not in ("prompt", "quote", "checklist") %}<h2>{{ b.title }}</h2>{% endif -%}
+
+{%- if k == "news" -%}
+  {%- for h in (b["items"][:3] if compact else b["items"]) %}
+  {%- if h.topic %}<p class="kicker">{{ h.topic }}</p>{% endif %}
+  {%- if compact %}
+  <p class="story"><b>{{ h.title }}.</b> {{ h.summary }}</p>
+  {%- else %}
+  <article class="story"><h3>{{ h.title }}</h3>
+    <p>{{ h.summary }}{% if h.source %} <span class="src">({{ h.source }})</span>{% endif %}</p></article>
+  {%- endif %}
+  {%- endfor %}
+
+{%- elif k == "list" -%}
+  {%- if b.intro %}<p class="faint">{{ b.intro }}</p>{% endif %}
+  {%- set tag = "ol" if b.ordered else "ul" %}
+  <{{ tag }} class="tight">{% for i in b["items"] %}<li>{{ i }}</li>{% endfor %}</{{ tag }}>
+
+{%- elif k == "text" -%}
+  <p>{{ b.body }}</p>
+  {%- if b.note %}<p class="use">{{ b.note }}</p>{% endif %}
+
+{%- elif k == "terms" -%}
+  {%- for t in b["items"] %}
+  <div class="word">
+    <p><b class="w">{{ t.term }}</b>{% if t.pos %} <span class="pos">{{ t.pos }}</span>{% endif %}{% if t.pron and not compact %} <span class="ipa">{{ t.pron }}</span>{% endif %}{% if compact %}: {{ t.meaning }}{% endif %}</p>
+    {%- if not compact %}<p>{{ t.meaning }}</p>{% endif %}
+    {%- if t.example %}<p class="ex">“{{ t.example }}”</p>{% endif %}
+    {%- if t.tip and not compact %}<p class="use">{{ t.tip }}</p>{% endif %}
+  </div>
+  {%- endfor %}
+
+{%- elif k == "prompt" -%}
+  <div class="box">
+    {%- if b.title %}<h2>{{ b.title }}</h2>{% endif %}
+    <p><b>{{ b.body }}</b></p>
+    {%- if b.steps %}<ol class="tight">{% for s in b.steps %}<li>{{ s }}</li>{% endfor %}</ol>{% endif %}
+  </div>
+
+{%- elif k == "quote" -%}
+  <blockquote>“{{ b.text }}”<cite>— {{ b.author }}</cite></blockquote>
+
+{%- elif k == "lines" -%}
+  {%- if b.prompt %}<p>{{ b.prompt }}</p>{% endif %}
+  {%- if not compact %}<div class="lines">{% for _ in range(b.count or 4) %}<span></span>{% endfor %}</div>{% endif %}
+
+{%- elif k == "checklist" and not compact -%}
+  <div class="box checklist">
+    {%- if b.title %}<h2>{{ b.title }}</h2>{% endif %}
+    {%- for i in b["items"] %}<p><i class="tick"></i>{{ i }}</p>{% endfor %}
+  </div>
+{%- endif -%}
+{% endmacro %}
