@@ -45,7 +45,7 @@ blockquote cite { display: block; font-style: normal; font-size: 7pt; color: var
 
 .word { margin-bottom: 1.4mm; }
 .word p { margin-bottom: 0.3mm; }
-.word .w { font-size: 9.8pt; }
+.word .w { font-size: 9pt; }
 .pos, .ipa { color: var(--muted); font-style: italic; font-size: 7.2pt; }
 .ex { font-style: italic; }
 .use { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 7pt; }
