@@ -81,6 +81,12 @@
     {%- endif %}
   </div>
 
+{%- elif k == "diagram" -%}
+  <figure class="diagram">
+    {%- if b.svg_html %}{{ b.svg_html }}{% endif %}
+    {%- if b.caption %}<figcaption class="faint">{{ b.caption }}</figcaption>{% endif %}
+  </figure>
+
 {%- elif k == "stat" -%}
   <p class="stat"><span class="num">{{ b.value }}</span> {{ b.body }}</p>
   {%- if b.stamp %}<p class="stamp">{{ b.stamp }}</p>{% endif %}

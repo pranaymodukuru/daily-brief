@@ -6,7 +6,10 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
+import xml.etree.ElementTree as ET
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
 
 from daily_brief import puzzles
 
@@ -30,16 +33,56 @@ def _weasyprint():
 LAYOUTS = {"full": "brief", "compact": "compact"}
 
 
-def _fill_puzzles(content: dict, day: date) -> None:
-    """Generate the grids for sudoku blocks, plus yesterday's solution."""
+def _blocks(content: dict):
     for page in content["pages"]:
         cols = [page.get("left") or [], page.get("right") or []]
         cols += [col for row in page.get("rows") or [] for col in row.get("columns") or []]
-        for b in (b for col in cols for b in col):
-            if b.get("kind") == "sudoku":
-                level = b.get("level", "easy")
-                b["grid"], _ = puzzles.sudoku(day, level)
-                _, b["prev_solution"] = puzzles.sudoku(day - timedelta(days=1), level)
+        yield from (b for col in cols for b in col)
+
+
+def _fill_puzzles(content: dict, day: date) -> None:
+    """Generate the grids for sudoku blocks, plus yesterday's solution."""
+    for b in _blocks(content):
+        if b.get("kind") == "sudoku":
+            level = b.get("level", "easy")
+            b["grid"], _ = puzzles.sudoku(day, level)
+            _, b["prev_solution"] = puzzles.sudoku(day - timedelta(days=1), level)
+
+
+SVG_NS = "http://www.w3.org/2000/svg"
+SVG_TAGS = {"svg", "g", "defs", "marker", "path", "line", "polyline", "polygon", "rect",
+            "circle", "ellipse", "text", "tspan", "title"}
+
+
+def clean_svg(markup: str) -> str | None:
+    """Keep only drawing elements and plain attributes: no scripts, handlers or links."""
+    try:
+        root = ET.fromstring(markup)
+    except ET.ParseError:
+        return None
+    for el in root.iter():
+        el.tag = el.tag.removeprefix(f"{{{SVG_NS}}}")
+        for k in list(el.attrib):
+            v = el.attrib[k]
+            if k.startswith("{") or k.lower().startswith("on") or "href" in k.lower() \
+                    or re.search(r"url\((?!#)|javascript:|expression\(", v, re.I):
+                del el.attrib[k]
+    for parent in list(root.iter()):
+        for child in list(parent):
+            if child.tag not in SVG_TAGS:
+                parent.remove(child)
+    if root.tag != "svg":
+        return None
+    root.set("xmlns", SVG_NS)
+    return ET.tostring(root, encoding="unicode")
+
+
+def _fill_diagrams(content: dict) -> None:
+    """Sanitise the agent's inline SVG once, so the template can embed it as-is."""
+    for b in _blocks(content):
+        if b.get("kind") == "diagram":
+            svg = clean_svg(b.get("svg") or "")
+            b["svg_html"] = Markup(svg) if svg else None
 
 
 def _k(n: int) -> str:
@@ -61,6 +104,7 @@ def to_html(content: dict, config: dict, layout: str = "full", run: dict | None 
     name = LAYOUTS[layout]
     day = date.fromisoformat(content["date"])
     _fill_puzzles(content, day)
+    _fill_diagrams(content)
     render = lambda foot: env.get_template(f"{name}.html.j2").render(
         c=content, footer=foot,
         cfg=config,

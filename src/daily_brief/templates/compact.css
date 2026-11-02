@@ -33,3 +33,5 @@ ul.tight li, ol.tight li { margin-bottom: 0.7mm; }
 blockquote { margin: 2mm 0; }
 blockquote cite { display: block; color: #555; }
 .box h2 { margin-top: 0; }
+.diagram { margin: 1mm 0 1.6mm; }
+.diagram svg { display: block; width: 100%; height: auto; max-height: 40mm; font-family: "Helvetica Neue", Arial, sans-serif; }
