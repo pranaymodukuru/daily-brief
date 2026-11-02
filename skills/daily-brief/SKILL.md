@@ -1,13 +1,31 @@
+---
+name: daily-brief
+description: Write, render and print today's edition of the reader's personal morning paper ("The Daily Brief"), designed around their own wishes, with news, learning with spaced review, and exercises. Use when asked to produce, print or set up the daily brief or morning paper.
+---
+
 # Daily Brief: agent instructions
 
 You are the editor and writer of a personal printed morning paper. The reader
 describes what they want in plain language (`config.wishes`); you design the
 paper around that, keep it consistent from day to day, and make each edition
-build on the last. Work in the repository root.
+build on the last.
+
+## 0. Setup
+
+- If `daily-brief` isn't on PATH, install it from the folder two levels above
+  this skill's directory (resolve symlinks first):
+  `uv tool install "$(cd "<this skill's directory>" && cd -P ../.. && pwd)"`.
+  If `uv` is missing too, tell the reader to install it (docs.astral.sh/uv) and stop.
+- `cd "$(daily-brief home)"` and work there: all paths below (`out/`, `state/`)
+  are relative to it.
+- If there's no `config.yaml` there, run `daily-brief init`, ask the reader
+  what they want from their paper, write it into `wishes` in `config.yaml`,
+  and continue. In an unattended run (no one to ask), stop and report that
+  the paper needs setting up.
 
 ## 1. Load context
 
-Run `uv run daily-brief context`. It returns JSON with:
+Run `daily-brief context`. It returns JSON with:
 - `config.reader` (name, language) and `config.wishes`: who this is for and what they want
 - `config.sources`: optional inputs, e.g. `newsletters.query` (a Gmail search)
   `calendar` (today's meetings), `hackernews` (the HN front page),
@@ -90,15 +108,15 @@ plan exactly.
   about Friday's demo") with the usual email stamp. Never print codes,
   passwords, account numbers or other sensitive details from an email.
 - **Hacker News** (if `sources.hackernews` is set): run
-  `uv run daily-brief hn --top {top or 30}`. It returns the front page with
+  `daily-brief hn --top {top or 30}`. It returns the front page with
   points and comments. Pick what the wishes ask for, e.g. trending topics as
   short bullets and AI stories as headlines. Write a story's summary only
   from what you know for sure: the title, or the linked page if you open it.
   Never guess what an article says.
-- **Weather** (if `sources.weather` is set): run `uv run daily-brief weather`
+- **Weather** (if `sources.weather` is set): run `daily-brief weather`
   and put its `line` in the edition's top-level `weather` field, unchanged.
   It prints as a strip under the masthead. If the command fails, leave it out.
-- **Feeds** (if `sources.feeds` is set): run `uv run daily-brief feeds --hours 48`.
+- **Feeds** (if `sources.feeds` is set): run `daily-brief feeds --hours 48`.
   It returns recent posts from the configured blogs: the most reliable
   source for launches and updates. Stamp each item `"<source> blog · <published>"`.
   For anything not in the feeds (e.g. a lab without one), web search only
@@ -183,24 +201,25 @@ Keep summaries tight. Page one should be full: if there is space left, add short
 
 ## 5. Build and check
 
-Run `uv run daily-brief build out/{today}.json --no-record`. It prints the
+Run `daily-brief build out/{today}.json --no-record`. It prints the
 layout, page count and size. The `full` layout must have exactly as many pages
 as the plan; `compact` (email delivery) must be 1 page. If it overflows,
 shorten the longest blocks and rebuild. A column that is too long pushes the
 whole page's columns onto a new page, so if one column is much longer than
 the other, move a block across rather than cutting content. When it fits, run
-`uv run daily-brief build out/{today}.json` to save progress. Make that the
+`daily-brief build out/{today}.json` to save progress. Make that the
 last build: the footer records the model, tokens and cost of this run up to
 that moment, read from the Claude Code transcript.
 
 ## 6. Deliver
 
-Run `uv run daily-brief deliver out/{today}.pdf`. It prints locally or emails
-the PDF over SMTP, depending on `config.delivery.mode`. Never pass the PDF
-through a connector. If delivery fails, keep the PDF and report the error in
-one line.
+Run `daily-brief deliver out/{today}.pdf`. Depending on
+`config.delivery.mode` it prints on the configured printer or the one it
+detects (`auto`, the default, saves only the PDF when there's none), or
+emails the PDF over SMTP. Never pass the PDF through a connector. If
+delivery fails, keep the PDF and report the error in one line.
 
 ## 7. Report
 
-End with 3 lines: whether it was delivered, the edition number (and "new plan"
+End with 3 lines: whether it was printed (on which printer) or saved as a PDF (with its full path), the edition number (and "new plan"
 if you re-planned), and one line on what's in it.

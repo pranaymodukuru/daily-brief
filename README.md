@@ -13,47 +13,58 @@ The paper also remembers what it has taught you. Each subject you're learning ge
 ## How it works
 
 ```
-Claude desktop app, scheduled task (e.g. 06:30)
-   │  follows prompts/daily-brief.md
-   │  uv run daily-brief context      wishes, saved plan, what's due for review
+Your coding agent (e.g. a Claude scheduled task at 06:30)
+   │  uses the daily-brief skill (skills/daily-brief/SKILL.md)
+   │  daily-brief context             wishes, saved plan, what's due for review
    │  (first run / wishes changed)    designs the paper ► state/plan.json
    │  Gmail, Calendar, HN, web       newsletters, meetings, news
    │  writes out/YYYY-MM-DD.json      today's content as generic blocks
-   │  uv run daily-brief build …      HTML ► PDF, records learning progress
-   └► uv run daily-brief deliver …    lp ► your printer (double-sided)
+   │  daily-brief build …             HTML ► PDF, records learning progress
+   └► daily-brief deliver …           detected printer (double-sided), or just the PDF
 ```
 
-Claude does the editing and writing; a small Python CLI handles the deterministic parts (state, rendering, printing). It runs on your Claude subscription: no API key and no server.
+The agent does the editing and writing; a small Python CLI handles the deterministic parts (state, rendering, printing). With Claude it runs on your subscription: no API key and no server. The skill is a plain `SKILL.md`, so other agents that read skills (such as Codex) can use it too.
 
 ## Requirements
 
 - macOS or Linux
 - [uv](https://docs.astral.sh/uv/)
 - WeasyPrint's system libraries: `brew install pango` (macOS) or `apt install libpango-1.0-0 libpangoft2-1.0-0` (Debian/Ubuntu)
-- A printer set up on your computer (`lpstat -p` lists it). Double-sided output needs a printer with automatic duplex.
-- The [Claude desktop app](https://claude.ai/download), to run the daily scheduled task
+- Optional: a printer set up on your computer. It's found automatically (`daily-brief printers` shows which); without one, each edition is saved as a PDF. Double-sided output needs a printer with automatic duplex.
+- A coding agent: Claude Code (the [Claude desktop app](https://claude.ai/download) can run it as a daily scheduled task) or another agent that reads `SKILL.md` skills
 - Optional: the Gmail connector in Claude, for the "From your inbox" column
 
-## Setup
+## Install (local)
 
 ```bash
 git clone https://github.com/pranaymodukuru/daily-brief && cd daily-brief
-uv sync
-cp config.example.yaml config.yaml
+./install.sh
 ```
 
-Edit `config.yaml`: write your `wishes` (see [Make it yours](#make-it-yours)) and set `delivery.printer` to your printer's name from `lpstat -p`.
+`install.sh` puts the `daily-brief` command on your PATH (with `uv tool install`), links the skill into the skills folder of each agent it finds (`~/.claude/skills`, `~/.codex/skills`, `~/.agents/skills`) and creates your home folder, `~/.daily-brief`, with a `config.yaml`. Run it again after a `git pull`; `./install.sh --uninstall` removes the command and links but keeps your paper.
 
-Check that rendering and printing work with the sample edition:
+**Or as a Claude Code plugin**, instead of the skill links (use one or the other, so the skill isn't loaded twice):
+
+```
+/plugin marketplace add /path/to/daily-brief
+/plugin install daily-brief@daily-brief
+```
+
+On first use the skill installs the `daily-brief` command itself if it's missing.
+
+Edit `~/.daily-brief/config.yaml` and write your `wishes` (see [Make it yours](#make-it-yours)), or just ask your agent for "today's daily brief" and it asks you what you want. Check that rendering and printing work with the sample edition:
 
 ```bash
-uv run daily-brief build examples/sample-edition.json --no-record   # writes out/2026-01-01.pdf
-uv run daily-brief deliver out/2026-01-01.pdf                       # prints it
+daily-brief printers                                          # which printer would be used
+daily-brief build examples/sample-edition.json --no-record    # writes ~/.daily-brief/out/2026-01-01.pdf
+daily-brief deliver ~/.daily-brief/out/2026-01-01.pdf         # prints it, or keeps the PDF
 ```
+
+**Where your data lives.** Config, state and editions are in the home folder: `$DAILY_BRIEF_HOME` if set, else the current folder if it has a `config.yaml` (so a checkout set up the old way keeps working), else `~/.daily-brief`.
 
 ## Make it yours
 
-Everything lives in `config.yaml` (see [config.example.yaml](config.example.yaml)):
+Everything lives in `config.yaml` (see [config.example.yaml](src/daily_brief/config.example.yaml)):
 
 - **`wishes`:** what you want from the paper, in plain language: interests, things you're learning and at what level, habits, tone, what to leave out.
 - **`reader`:** your name and the language the paper is written in.
@@ -64,6 +75,7 @@ Everything lives in `config.yaml` (see [config.example.yaml](config.example.yaml
 - **`sources.feeds`:** optional. RSS/Atom feeds, e.g. AI company blogs, read by `daily-brief feeds` (the most reliable source for launches).
 - **`sources.inbox`:** optional. A Gmail search for personal emails; the paper lists the ones needing a reply or with a deadline, as short actions without sensitive details.
 - **`paper.pages`:** how many printed pages; 2 makes one double-sided sheet.
+- **`delivery`:** `mode: auto` (the default) prints on `printer`, or on the detected one when that's empty (system default first, fax and PDF queues skipped), and only saves the PDF if there's none. `lp` always prints and fails if the printer isn't there; `none` never prints.
 
 **The plan.** On the first run, Claude turns your wishes into a plan, saved as `state/plan.json`: which sections, in what order, with what purpose. Every edition follows that plan, so the paper feels familiar. Edit your wishes and the next run redesigns it. To force a redesign without changing them, delete `state/plan.json`.
 
@@ -77,14 +89,15 @@ Everything lives in `config.yaml` (see [config.example.yaml](config.example.yaml
 
 ## Schedule it
 
-In the Claude desktop app, open **Code → Scheduled → New task**, choose a daily time (for example 06:30), and use this prompt with your own path:
+In the Claude desktop app, open **Code → Scheduled → New task**, choose a daily time (for example 06:30), and use this prompt:
 
-> Produce and print today's edition of "The Daily Brief". Work in the repository `/path/to/daily-brief` (cd there first). Read `prompts/daily-brief.md` and follow its steps exactly. Never invent news: every headline must come from a newsletter you read or a web result from the last 2 days. Only read email, never send or change it. If today's edition is already in `state/progress.json`, don't print it again.
+> Produce and print today's edition of "The Daily Brief" with the daily-brief skill, following its steps exactly. Never invent news: every headline must come from a newsletter you read or a web result from the last 2 days. Only read email, never send or change it. If today's edition is already in `state/progress.json`, don't print it again.
 
 **When it runs**
 - **App open and computer awake at the scheduled time:** it prints then.
 - **App closed, or computer asleep or off:** it runs as soon as the app is open and the computer is awake again, so you never miss an edition. It just arrives later.
-- **Printer off or out of paper:** the PDF stays in `out/` and the run reports the error.
+- **No printer found:** the edition is saved as a PDF in `out/`.
+- **Printer off or out of paper:** the PDF stays in `out/` and the run reports the error. (A printer that's switched off can still look available, so the PDF is always kept.)
 
 **Have it ready before you wake up (macOS).** Keep the app open and let the Mac wake itself a few minutes earlier:
 
@@ -102,16 +115,16 @@ sudo pmset repeat wakeorpoweron MTWRFSU 06:25:00    # undo: sudo pmset repeat ca
 ## Manual use
 
 ```bash
-uv run daily-brief context                          # JSON the agent writes from
-uv run daily-brief build out/2026-01-01.json        # render PDF + record progress
-uv run daily-brief build out/… --no-record          # render only
-uv run daily-brief build out/… --layout compact     # one-page edition
-uv run daily-brief deliver out/2026-01-01.pdf       # print (or email, see below)
+daily-brief context                                 # JSON the agent writes from
+daily-brief build out/2026-01-01.json               # render PDF + record progress
+daily-brief build out/… --no-record                 # render only
+daily-brief build out/… --layout compact            # one-page edition
+daily-brief deliver out/2026-01-01.pdf              # print, keep or email it (see below)
 ```
 
 ## Privacy
 
-`config.yaml`, `state/` and `out/` are gitignored: your profile, progress and editions stay on your machine.
+Everything personal lives in your home folder (`~/.daily-brief` by default), outside the repo. In a checkout, `config.yaml`, `state/` and `out/` are gitignored: your profile, progress and editions stay on your machine.
 
 ## Later: cloud and email delivery (experimental)
 

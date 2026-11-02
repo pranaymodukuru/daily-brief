@@ -1,0 +1,11 @@
+{
+  "name": "daily-brief",
+  "owner": { "name": "pranaymodukuru" },
+  "plugins": [
+    {
+      "name": "daily-brief",
+      "source": "./",
+      "description": "A personal printed morning paper, written by your coding agent and printed on your home printer (or saved as a PDF)."
+    }
+  ]
+}

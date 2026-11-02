@@ -1,12 +1,19 @@
 """daily-brief: the deterministic half of the daily brief.
 
-The agent (Claude, following prompts/daily-brief.md) does the research and
+The agent (following skills/daily-brief/SKILL.md) does the research and
 writing; these commands handle state, rendering and printing.
 
+Your config, state and editions live in the brief's home folder:
+$DAILY_BRIEF_HOME, else the current folder if it has a config.yaml, else
+~/.daily-brief.
+
+  daily-brief init                 create the home folder and config.yaml
+  daily-brief home                 print the home folder's path
+  daily-brief printers             list print queues and the one that would be used
   daily-brief context              print what today's edition needs (JSON)
   daily-brief build CONTENT.json   validate, render PDF, record progress
-  daily-brief print PDF            send a PDF to the configured printer
-  daily-brief deliver PDF          print or email it, per delivery.mode
+  daily-brief print PDF            send a PDF to the configured or detected printer
+  daily-brief deliver PDF          print, email or just keep it, per delivery.mode
   daily-brief hn [--top N]         today's Hacker News front page (JSON)
   daily-brief weather              today's forecast for sources.weather (JSON)
   daily-brief feeds [--hours N]    recent posts from sources.feeds (JSON)
@@ -15,6 +22,8 @@ writing; these commands handle state, rendering and printing.
 import argparse
 import calendar
 import json
+import os
+import shutil
 import subprocess
 import sys
 import urllib.request
@@ -23,9 +32,20 @@ from pathlib import Path
 
 import yaml
 
-from daily_brief import deliver, render, state, usage, weather
+from daily_brief import deliver, printers, render, state, usage, weather
 
-ROOT = Path.cwd()
+
+
+def _home() -> Path:
+    if env := os.environ.get("DAILY_BRIEF_HOME"):
+        return Path(env).expanduser()
+    if (Path.cwd() / "config.yaml").exists():
+        return Path.cwd()  # a repo checkout or a folder you set up yourself
+    return Path.home() / ".daily-brief"
+
+
+ROOT = _home()
+EXAMPLE_CONFIG = Path(__file__).parent / "config.example.yaml"
 BLOCK_KINDS = {"news", "list", "text", "terms", "prompt", "quote", "lines", "checklist",
                "agenda", "exercise", "sudoku", "stat"}
 
@@ -33,7 +53,7 @@ BLOCK_KINDS = {"news", "list", "text", "terms", "prompt", "quote", "lines", "che
 def load_config() -> dict:
     path = ROOT / "config.yaml"
     if not path.exists():
-        sys.exit("config.yaml not found: copy config.example.yaml and edit it")
+        sys.exit(f"no config.yaml in {ROOT}: run `daily-brief init` and edit it")
     return yaml.safe_load(path.read_text())
 
 
@@ -43,6 +63,7 @@ def cmd_context(args, cfg):
     plan = json.loads(plan_path.read_text()) if plan_path.exists() else None
     ctx = state.context(st, plan, cfg, date.today())
     ctx["config"] = cfg
+    ctx["home"] = str(ROOT)
     print(json.dumps(ctx, indent=2, ensure_ascii=False))
 
 
@@ -61,7 +82,7 @@ def cmd_build(args, cfg):
     content = json.loads(Path(args.content).read_text())
     if errors := validate(content):
         sys.exit("invalid content: " + "; ".join(errors))
-    layout = args.layout or ("compact" if cfg["delivery"]["mode"] == "email" else "full")
+    layout = args.layout or ("compact" if _mode(cfg) == "email" else "full")
     pdf = ROOT / "out" / f"{content['date']}.pdf"
     run = None if args.no_usage else usage.run_usage((cfg.get("cost") or {}).get("prices"))
     pages = render.to_pdf(content, cfg, pdf, layout, run)
@@ -128,22 +149,56 @@ def cmd_feeds(args, cfg):
     print(json.dumps(posts, indent=2, ensure_ascii=False))
 
 
+def _mode(cfg) -> str:
+    return (cfg.get("delivery") or {}).get("mode") or "auto"
+
+
+def cmd_init(args, cfg):
+    cfg_path = ROOT / "config.yaml"
+    if cfg_path.exists():
+        print(f"{cfg_path} already exists; edit it to change your paper")
+    else:
+        ROOT.mkdir(parents=True, exist_ok=True)
+        shutil.copy(EXAMPLE_CONFIG, cfg_path)
+        print(f"created {cfg_path}: write your wishes in it")
+    printer = printers.find()
+    print(f"printer: {printer or 'none found, editions will be saved as PDFs in ' + str(ROOT / 'out')}")
+
+
+def cmd_home(args, cfg):
+    print(ROOT)
+
+
+def cmd_printers(args, cfg):
+    preferred = ((cfg or {}).get("delivery") or {}).get("printer", "")
+    print(json.dumps({"queues": printers.available(), "would_use": printers.find(preferred)}, indent=2))
+
+
 def cmd_print(args, cfg):
-    d = cfg["delivery"]
-    cmd = ["lp"]
-    if d.get("printer"):
-        cmd += ["-d", d["printer"]]
+    d = cfg.get("delivery") or {}
+    printer = printers.find(d.get("printer", ""))
+    if not printer:
+        wanted = f"printer {d['printer']!r} is not available" if d.get("printer") else "no printer found"
+        sys.exit(f"{wanted} (see `daily-brief printers`); PDF kept at {args.pdf}")
+    cmd = ["lp", "-d", printer]
     if d.get("duplex", True):
         cmd += ["-o", "sides=two-sided-long-edge"]
     cmd += ["-o", "media=A4", "-t", "The Daily Brief", args.pdf]
     subprocess.run(cmd, check=True)
+    print(f"sent {Path(args.pdf).name} to {printer}")
 
 
 def cmd_deliver(args, cfg):
-    """Deliver per config: lp prints locally, email sends over SMTP, none keeps the PDF."""
-    mode = cfg["delivery"]["mode"]
+    """Deliver per config: auto prints if a printer is found and otherwise keeps
+    the PDF, lp must print, email sends over SMTP, none keeps the PDF."""
+    mode = _mode(cfg)
     if mode == "none":
         print(f"delivery off: PDF saved at {args.pdf}")
+        return
+    preferred = (cfg.get("delivery") or {}).get("printer", "")
+    if mode == "auto" and not printers.find(preferred):
+        missing = f"printer {preferred!r} is not available" if preferred else "no printer found"
+        print(f"{missing}: PDF saved at {args.pdf}")
         return
     if mode == "lp":
         return cmd_print(args, cfg)
@@ -155,6 +210,9 @@ def cmd_deliver(args, cfg):
 def main():
     p = argparse.ArgumentParser(prog="daily-brief")
     sub = p.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("init", help="create the home folder and a config.yaml to edit")
+    sub.add_parser("home", help="print the home folder's path")
+    sub.add_parser("printers", help="list print queues and the one that would be used")
     sub.add_parser("context")
     b = sub.add_parser("build")
     b.add_argument("content")
@@ -163,7 +221,7 @@ def main():
     b.add_argument("--layout", choices=list(render.LAYOUTS), help="default: compact for email delivery, else full")
     pr = sub.add_parser("print")
     pr.add_argument("pdf")
-    dl = sub.add_parser("deliver", help="print (lp) or email (SMTP), per delivery.mode")
+    dl = sub.add_parser("deliver", help="print, email or keep the PDF, per delivery.mode")
     dl.add_argument("pdf")
     dl.add_argument("--dry-run", action="store_true", help="build the email but don't send it")
     hn = sub.add_parser("hn", help="today's Hacker News front page as JSON")
@@ -172,6 +230,10 @@ def main():
     fd = sub.add_parser("feeds", help="recent posts from sources.feeds as JSON")
     fd.add_argument("--hours", type=int, default=48)
     args = p.parse_args()
+    setup = {"init": cmd_init, "home": cmd_home, "printers": cmd_printers}
+    if args.cmd in setup:  # these work before there is a config
+        cfg_path = ROOT / "config.yaml"
+        return setup[args.cmd](args, yaml.safe_load(cfg_path.read_text()) if cfg_path.exists() else None)
     cmds = {"context": cmd_context, "build": cmd_build, "print": cmd_print, "deliver": cmd_deliver, "hn": cmd_hn,
             "weather": cmd_weather, "feeds": cmd_feeds}
     cmds[args.cmd](args, load_config())
