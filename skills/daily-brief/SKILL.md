@@ -173,10 +173,21 @@ content. A page uses either `left`/`right` or `rows`, as the plan does. Block ki
 | `exercise` | `title`, `items: [str]`, optional `intro` (e.g. yesterday's answers), `body`, `lines` per item (default 1, 0 for none) |
 | `stat` | `title`, `value` (e.g. "80%"), `body` (one sentence of context), `stamp?`: a number of the day |
 | `sudoku` | `title`, `level` (easy, medium, hard): the grid and yesterday's solution are generated for you |
+| `diagram` | `title`, `svg` (inline SVG you draw), optional `caption`: a figure that explains a concept visually |
 
 A `news` item may add `points: [str]` (3–4 bullets) to make it a lead story
 with more depth: use that for the one or two stories that matter most to the
 reader, and keep the rest to 1–2 sentences.
+
+**Diagrams:** when a concept is easier to see than to read (a curve, a
+network, a tree, a pipeline), draw it as a `diagram`. Write a plain
+`<svg viewBox="0 0 W H">` in black and grey on white: lines, paths,
+shapes and short `text` labels (7–9 units tall at a 300-wide viewBox), no
+colour, images, links or scripts (they are stripped). Compute coordinates
+from real values (e.g. plot the actual function and points of the worked
+example) so the figure is accurate, keep it one idea, and use `caption` for
+the one sentence that says what to notice. It prints at column width, up
+to about 55 mm tall.
 
 **Learning:** for every subject you teach, report it in `learning`:
 - terms you introduced (with meanings), so they come back for review later

@@ -47,7 +47,7 @@ def _home() -> Path:
 ROOT = _home()
 EXAMPLE_CONFIG = Path(__file__).parent / "config.example.yaml"
 BLOCK_KINDS = {"news", "list", "text", "terms", "prompt", "quote", "lines", "checklist",
-               "agenda", "exercise", "sudoku", "stat"}
+               "agenda", "exercise", "sudoku", "stat", "diagram"}
 
 
 def load_config() -> dict:
@@ -75,6 +75,8 @@ def validate(content: dict) -> list[str]:
         for b in (b for col in cols for b in col):
             if b.get("kind") not in BLOCK_KINDS:
                 errors.append(f"page {n}: unknown block kind {b.get('kind')!r}")
+            elif b["kind"] == "diagram" and render.clean_svg(b.get("svg") or "") is None:
+                errors.append(f"page {n}: diagram {b.get('title')!r} has no valid <svg>")
     return errors
 
 

@@ -83,7 +83,7 @@ Everything lives in `config.yaml` (see [config.example.yaml](src/daily_brief/con
 
 **Layout.** A page is either two columns (`left`/`right`) or a stack of rows, each with its own columns and optional widths, for example one row per subject.
 
-**Building blocks.** Each section is printed as one of a few generic blocks: news (with optional lead stories and source stamps), stat (number of the day), list, text, terms, prompt (boxed exercise), quote, lines (space to write), checklist, agenda (today's meetings), exercise (numbered items with answer lines) and sudoku (generated in code, with yesterday's solution). They're defined in [`blocks.html.j2`](src/daily_brief/templates/blocks.html.j2), so new kinds of content need no code changes.
+**Building blocks.** Each section is printed as one of a few generic blocks: news (with optional lead stories and source stamps), stat (number of the day), list, text, terms, prompt (boxed exercise), quote, lines (space to write), checklist, agenda (today's meetings), exercise (numbered items with answer lines), diagram (a figure Claude draws as SVG, e.g. for a machine-learning concept) and sudoku (generated in code, with yesterday's solution). They're defined in [`blocks.html.j2`](src/daily_brief/templates/blocks.html.j2), so new kinds of content need no code changes.
 
 **Footer.** Each page shows its number, the model that wrote the paper, the paper's size in tokens, and how many tokens the run used with an approximate cost at Anthropic API list prices. The numbers come from Claude Code's own transcript of the run. On a Claude subscription you don't pay per token, so the cost shows what the run would cost on the API. Use `build --no-usage` to leave it out.
 
