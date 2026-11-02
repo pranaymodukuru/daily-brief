@@ -1,4 +1,4 @@
-# Copy to config.yaml (gitignored) and make it yours.
+# Created by `daily-brief init` as config.yaml in your home folder. Make it yours.
 
 reader:
   name: "Alex"
@@ -53,10 +53,11 @@ paper:
   # fact_topics: [history, science, space]   # areas for a "fact of the day", if your wishes ask for one
 
 delivery:
-  # lp    – print on a local printer (computer on, same network)
+  # auto  – print if a printer is found, otherwise just save the PDF in out/
+  # lp    – always print; fail (keeping the PDF) if the printer isn't available
   # none  – only save the PDF in out/ (nothing is printed or sent)
   # email – (experimental) email a compact one-page PDF, e.g. to a printer's email address
-  mode: "lp"
-  printer: ""                # name from `lpstat -p`; empty = system default
+  mode: "auto"
+  printer: ""                # name from `daily-brief printers`; empty = detect (system default first)
   duplex: true
   email_to: []               # email mode; sender/password come from SMTP_* env vars
