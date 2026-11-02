@@ -116,7 +116,7 @@ sudo pmset repeat wakeorpoweron MTWRFSU 06:25:00    # undo: sudo pmset repeat ca
 
 ```bash
 daily-brief context                                 # JSON the agent writes from
-daily-brief build out/2026-01-01.json               # render PDF + record progress
+daily-brief build out/2026-01-01.json               # render PDF + record progress (a rebuild replaces the day's record)
 daily-brief build out/… --no-record                 # render only
 daily-brief build out/… --layout compact            # one-page edition
 daily-brief deliver out/2026-01-01.pdf              # print, keep or email it (see below)

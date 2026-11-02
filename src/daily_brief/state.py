@@ -6,6 +6,7 @@ on each other. plan.json is the paper's layout, designed by the agent from
 the reader's wishes and reused until the wishes change.
 """
 
+import copy
 import hashlib
 import json
 import random
@@ -53,8 +54,34 @@ def wishes_hash(cfg: dict) -> str:
     return hashlib.sha256(basis.encode()).hexdigest()[:12]
 
 
+def unrecord(st: dict, day: date) -> dict | None:
+    """Take a recorded day back out of the state, so it can be written again.
+
+    Returns that day's history entry, or None if the day wasn't recorded.
+    Reviews are rolled back from the snapshot kept in the entry; entries
+    recorded before snapshots existed keep their review progress.
+    """
+    iso = day.isoformat()
+    entry = next((e for e in st["history"] if e["date"] == iso), None)
+    if entry is None:
+        return None
+    st["history"].remove(entry)
+    st["streak_dates"] = [d for d in st["streak_dates"] if d != iso]
+    for name, s in st["subjects"].items():
+        before = (entry.get("reviewed") or {}).get(name, {})
+        s["items"] = [i for i in s["items"] if i.get("added") != iso]
+        for i in s["items"]:
+            if (old := before.get(i["term"].lower())) is not None:
+                i["reps"], i["next_review"] = old["reps"], old["next_review"]
+        s["notes"] = [n for n in s["notes"] if n.get("date") != iso]
+    return entry
+
+
 def context(st: dict, plan: dict | None, cfg: dict, today: date) -> dict:
     """Everything the agent needs to write today's edition."""
+    # If today is already recorded, this is a rebuild: plan it as if it weren't.
+    st = copy.deepcopy(st)
+    redo = unrecord(st, today)
     h = wishes_hash(cfg)
     subjects = {}
     for name, s in st["subjects"].items():
@@ -68,7 +95,7 @@ def context(st: dict, plan: dict | None, cfg: dict, today: date) -> dict:
     history = st["history"]
     return {
         "today": today.isoformat(),
-        "edition": st["edition"] + 1,
+        "edition": redo["edition"] if redo else st["edition"] + 1,
         "wishes_hash": h,
         "replan": plan is None or plan.get("wishes_hash") != h,
         "plan": plan,
@@ -81,16 +108,18 @@ def context(st: dict, plan: dict | None, cfg: dict, today: date) -> dict:
 
 
 def record(st: dict, content: dict, today: date) -> dict:
-    """Fold a finished edition into the state."""
+    """Fold a finished edition into the state, replacing that day's earlier record."""
     iso = today.isoformat()
-    if any(e["date"] == iso for e in st["history"]):
-        return st
+    redo = unrecord(st, today)
+    reviewed: dict[str, dict] = {}
 
     for entry in content.get("learning", []):
         subj = st["subjects"].setdefault(entry["subject"], {"items": [], "notes": []})
         known = {i["term"].lower(): i for i in subj["items"]}
         for term in entry.get("reviewed", []):
             if i := known.get(term.lower()):
+                reviewed.setdefault(entry["subject"], {}).setdefault(
+                    term.lower(), {"reps": i["reps"], "next_review": i["next_review"]})
                 i["reps"] += 1
                 step = INTERVALS[min(i["reps"], len(INTERVALS) - 1)]
                 i["next_review"] = (today + timedelta(days=step)).isoformat()
@@ -103,12 +132,18 @@ def record(st: dict, content: dict, today: date) -> dict:
         if entry.get("note"):
             subj["notes"].append({"date": iso, "note": entry["note"]})
 
-    st["edition"] += 1
-    st["streak_dates"].append(iso)
+    if redo:
+        edition = redo["edition"]
+    else:
+        st["edition"] += 1
+        edition = st["edition"]
+    st["streak_dates"] = sorted(st["streak_dates"] + [iso])
     st["history"].append({
         "date": iso,
-        "edition": st["edition"],
+        "edition": edition,
         "covered": content.get("covered", []),
         "for_tomorrow": content.get("for_tomorrow", []),
+        "reviewed": reviewed,
     })
+    st["history"].sort(key=lambda e: e["date"])
     return st

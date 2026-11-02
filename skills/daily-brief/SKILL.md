@@ -220,7 +220,11 @@ whole page's columns onto a new page, so if one column is much longer than
 the other, move a block across rather than cutting content. When it fits, run
 `daily-brief build out/{today}.json` to save progress. Make that the
 last build: the footer records the model, tokens and cost of this run up to
-that moment, read from the Claude Code transcript.
+that moment, read from the Claude Code transcript. Rebuilding a day that
+is already recorded (e.g. after the reader changes the config) replaces
+that day's record: same edition number, its new terms, notes, reviews and
+`for_tomorrow` instead of the old ones. `daily-brief context` already
+plans such a rebuild as if the day had not been recorded.
 
 ## 6. Deliver
 
