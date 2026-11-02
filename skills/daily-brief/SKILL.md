@@ -210,6 +210,14 @@ a phrase is a `terms` item with its meaning and two `examples`.
 Keep summaries tight. Page one should be full: if there is space left, add short stories
 (only real ones) rather than padding.
 
+Parallel sections (e.g. one row per language) must look alike: the same
+block kinds in the same order, the same `dense` setting and a similar
+number of items, so no subject looks cramped next to another. When space
+is short, trim the subject the wishes rank lower first (fewer terms, one
+example each), never by switching just one of them to a denser style. If
+the wishes don't rank them, the one being learned from scratch (e.g. a
+foreign language over the reader's own) comes first.
+
 ## 5. Build and check
 
 Run `daily-brief build out/{today}.json --no-record`. It prints the
