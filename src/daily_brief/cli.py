@@ -200,7 +200,7 @@ def cmd_deliver(args, cfg):
         missing = f"printer {preferred!r} is not available" if preferred else "no printer found"
         print(f"{missing}: PDF saved at {args.pdf}")
         return
-    if mode == "lp":
+    if mode in ("auto", "lp"):
         return cmd_print(args, cfg)
     pdf = Path(args.pdf)
     subject = f"{(cfg.get('paper') or {}).get('title', 'The Daily Brief')}, {pdf.stem}"
